@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripAid - Your Korea Travel Guardian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 1000; overflow-y: auto; }
+        .overlay.active { display: block; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .check-item.done { text-decoration: line-through; opacity: 0.5; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 pb-20">
+
+    <!-- [상단 대시보드] -->
+    <header class="p-6 pt-10 glass sticky top-0 z-50 border-b border-slate-200">
+        <div class="flex justify-between items-end mb-4">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tighter italic text-blue-600">TripAid</h1>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Korea Survival Kit</p>
+            </div>
+            <div class="text-right">
+                <p id="current-date" class="text-xs font-bold text-slate-500"></p>
+                <p class="text-sm font-black text-slate-800">SEOUL, KOREA</p>
+            </div>
+        </div>
+        <!-- 한 줄 꿀팁 슬라이더 -->
+        <div class="bg-blue-50 p-2 rounded-lg overflow-hidden whitespace-nowrap">
+            <p class="text-[10px] font-bold text-blue-500 animate-pulse">
+                💡 TIP: Most subway restrooms are free and clean!
+            </p>
+        </div>
+    </header>
+
+    <main class="p-5 space-y-8">
+        
+        <!-- [1. 여행 체크리스트 위젯] -->
+        <section class="space-y-4">
+            <h2 class="text-lg font-extrabold flex items-center"><i class="fa-solid fa-list-check mr-2"></i> MY TRIP STATUS</h2>
+            <div class="flex gap-2 overflow-x-auto hide-scroll pb-2" id="checklist-tabs">
+                <button onclick="showChecklist('pre')" class="px-4 py-2 bg-white rounded-full text-xs font-bold shadow-sm border whitespace-nowrap">Before Flight</button>
+                <button onclick="showChecklist('arrival')" class="px-4 py-2 bg-white rounded-full text-xs font-bold shadow-sm border whitespace-nowrap">Arrived</button>
+                <button onclick="showChecklist('stay')" class="px-4 py-2 bg-white rounded-full text-xs font-bold shadow-sm border whitespace-nowrap">During Stay</button>
+            </div>
+            <div id="checklist-content" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 space-y-3">
+                <!-- JS에서 렌더링 -->
+            </div>
+        </section>
+
+        <!-- [2. 핵심 카테고리 그리드] -->
+        <section class="grid grid-cols-2 gap-4">
+            <div onclick="openOverlay('emergency')" class="p-5 bg-red-500 text-white rounded-[2.5rem] shadow-xl shadow-red-100 flex flex-col justify-between h-40">
+                <i class="fa-solid fa-circle-exclamation text-3xl"></i>
+                <span class="font-black text-lg leading-tight uppercase">Emergency<br>Medical</span>
+            </div>
+            <div onclick="openOverlay('transport')" class="p-5 bg-blue-500 text-white rounded-[2.5rem] shadow-xl shadow-blue-100 flex flex-col justify-between h-40">
+                <i class="fa-solid fa-subway text-3xl"></i>
+                <span class="font-black text-lg leading-tight uppercase">Transport<br>& Navi</span>
+            </div>
+            <div onclick="openOverlay('essentials')" class="p-5 bg-emerald-500 text-white rounded-[2.5rem] shadow-xl shadow-emerald-100 flex flex-col justify-between h-40">
+                <i class="fa-solid fa-restroom text-3xl"></i>
+                <span class="font-black text-lg leading-tight uppercase">Daily<br>Essentials</span>
+            </div>
+            <div onclick="openOverlay('guide')" class="p-5 bg-orange-400 text-white rounded-[2.5rem] shadow-xl shadow-orange-100 flex flex-col justify-between h-40">
+                <i class="fa-solid fa-lightbulb text-3xl"></i>
+                <span class="font-black text-lg leading-tight uppercase">Situation<br>Guide</span>
+            </div>
+            <div onclick="openOverlay('food')" class="p-5 bg-purple-500 text-white rounded-[2.5rem] shadow-xl shadow-purple-100 flex flex-col justify-between h-40">
+                <i class="fa-solid fa-utensils text-3xl"></i>
+                <span class="font-black text-lg leading-tight uppercase">Hometown<br>Food</span>
+            </div>
+            <div onclick="openOverlay('language')" class="p-5 bg-slate-800 text-white rounded-[2.5rem] shadow-xl shadow-slate-200 flex flex-col justify-between h-40">
+                <i class="fa-solid fa-comment-dots text-3xl"></i>
+                <span class="font-black text-lg leading-tight uppercase">SOS<br>Cards</span>
+            </div>
+        </section>
+
+        <!-- [3. 제휴 서비스 & 도구] -->
+        <section class="space-y-4">
+            <h2 class="text-lg font-extrabold flex items-center"><i class="fa-solid fa-shield-halved mr-2"></i> SECURITY & TOOLS</h2>
+            <div class="grid grid-cols-1 gap-3">
+                <a href="https://go.nordvpn.net/aff_c?offer_id=15&aff_id=141918&url_id=23180" target="_blank" class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-vpn-lock text-blue-600 mr-4 text-xl"></i><span class="font-bold">NordVPN (Safe Public WiFi)</span></div>
+                    <i class="fa-solid fa-chevron-right text-slate-300"></i>
+                </a>
+                <a href="https://go.nordpass.io/aff_c?offer_id=488&aff_id=141918&url_id=32566" target="_blank" class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-key text-slate-700 mr-4 text-xl"></i><span class="font-bold">NordPass (Secure PW)</span></div>
+                    <i class="fa-solid fa-chevron-right text-slate-300"></i>
+                </a>
+                <a href="https://linktr.ee/dedle" target="_blank" class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-link text-emerald-600 mr-4 text-xl"></i><span class="font-bold">Saily eSIM & Other Links</span></div>
+                    <i class="fa-solid fa-chevron-right text-slate-300"></i>
+                </a>
+            </div>
+        </section>
+
+        <!-- [4. 내 숙소 버튼] -->
+        <button onclick="goToHotel()" class="w-full p-6 bg-slate-900 text-white rounded-[2rem] flex justify-between items-center shadow-2xl active:scale-95 transition-transform">
+            <div class="flex items-center"><i class="fa-solid fa-house-chimney text-3xl mr-4"></i><span class="text-xl font-black italic">RETURN TO MY HOTEL</span></div>
+            <i class="fa-solid fa-location-arrow animate-bounce"></i>
+        </button>
+
+        <!-- [5. 기부 & 푸터] -->
+        <footer class="text-center pt-10 pb-10 space-y-6">
+            <div class="p-6 bg-yellow-50 rounded-3xl border border-yellow-200">
+                <p class="text-xs font-bold text-yellow-700 mb-4 uppercase">Did we help you today?</p>
+                <a href="https://buymeacoffee.com/djawjdaks8g" target="_blank" class="inline-flex items-center bg-yellow-400 text-yellow-900 px-6 py-3 rounded-full font-black shadow-lg">
+                    <i class="fa-solid fa-coffee mr-2"></i> BUY ME A COFFEE
+                </a>
+            </div>
+            <p class="text-xs text-slate-400 font-medium">Contact: offthemain@proton.me</p>
+            <p onclick="openOverlay('contribute')" class="text-xs text-blue-500 font-bold underline cursor-pointer italic">Contribute: Report a New Spot</p>
+        </footer>
+    </main>
+
+    <!-- [오버레이 레이어] -->
+    <div id="overlay" class="overlay">
+        <header class="p-6 glass sticky top-0 flex justify-between items-center border-b">
+            <h2 id="overlay-title" class="text-2xl font-black uppercase italic">Title</h2>
+            <button onclick="closeOverlay()" class="text-4xl text-slate-300">&times;</button>
+        </header>
+        <div id="overlay-content" class="p-6 space-y-4 pb-20"></div>
+    </div>
+
+    <script>
+        // 날짜 표시
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+        const checklists = {
+            pre: ["Apply K-ETA/Visa", "Book eSIM (Saily)", "Capture Hotel Address in Korean", "Get Travel Insurance"],
+            arrival: ["Pass Immigration", "Pickup SIM/eSIM", "Buy T-Money/Wowpass", "Take AREX to City"],
+            stay: ["Confirm WiFi PW", "Check AC/Heating Guide", "Find Nearest Conv. Store", "Update Hotel Location in App"]
+        };
+
+        const tripData = {
+            emergency: [
+                { name: "Police (Report)", icon: "👮", link: "https://www.google.com/maps/search/police+station" },
+                { name: "Emergency Hospital", icon: "🏥", link: "https://www.google.com/maps/search/hospital+emergency" },
+                { name: "24h Pharmacy", icon: "💊", link: "https://www.google.com/maps/search/pharmacy" }
+            ],
+            transport: [
+                { name: "WOWPASS Kiosk Guide", icon: "💳", type: "guide" },
+                { name: "Subway Map (Live)", icon: "🚇", link: "https://www.google.com/maps/search/subway+station" },
+                { name: "Bike (Ttareungi)", icon: "🚲", link: "https://www.google.com/maps/search/seoul+bike" }
+            ],
+            essentials: [
+                { name: "Public Toilet", icon: "🚻", link: "https://www.google.com/maps/search/public+toilet" },
+                { name: "Luggage Storage", icon: "🧳", link: "https://www.google.com/maps/search/luggage+storage" },
+                { name: "WiFi/Battery Rental", icon: "🔋", link: "https://www.google.com/maps/search/power+bank+rental" }
+            ],
+            guide: [
+                { name: "Using AC/Heating", icon: "🌡️", text: "In Korea, heating is floor-based (Ondol). Look for a controller on the wall. '실내' means Indoor, '난방' means Heating." },
+                { name: "Ordering Delivery", icon: "🛵", text: "Food delivery is great but usually requires a Korean number. Ask the hotel front desk for help with 'Baemin' or 'Coupang Eats'." },
+                { name: "Check-out List", icon: "📋", text: "1. Check for chargers. 2. Take passport from safe. 3. Return keys. 4. Request Tax Refund form." }
+            ],
+            food: [
+                { name: "Chinese Food", icon: "🥟", link: "https://www.google.com/maps/search/Chinese+food" },
+                { name: "Western Food", icon: "🍔", link: "https://www.google.com/maps/search/Western+food" },
+                { name: "Halal/Middle East", icon: "🕌", link: "https://www.google.com/maps/search/Halal+food" }
+            ],
+            language: [
+                { name: "Where is Toilet?", icon: "🚻", text: "화장실이 어디인가요? (Hwa-jang-sil-i eo-di-in-ga-yo?)" },
+                { name: "To this address, please", icon: "🚕", text: "이 주소로 가주세요. (I ju-so-ro ga-ju-se-yo.)" },
+                { name: "I have Allergy", icon: "🚫", text: "알레르기가 있어요. (Al-le-reu-gi-ga it-seo-yo.)" }
+            ],
+            contribute: [
+                { name: "Report New Spot", icon: "📍", link: "mailto:offthemain@proton.me" },
+                { name: "Suggest Features", icon: "💡", link: "https://linktr.ee/dedle" }
+            ]
+        };
+
+        function showChecklist(key) {
+            const container = document.getElementById('checklist-content');
+            container.innerHTML = checklists[key].map(item => `
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" class="w-5 h-5 rounded-lg border-slate-300">
+                    <span class="text-sm font-bold text-slate-600">${item}</span>
+                </div>
+            `).join('');
+        }
+
+        function openOverlay(key) {
+            const content = document.getElementById('overlay-content');
+            document.getElementById('overlay-title').innerText = key;
+            content.innerHTML = tripData[key].map(item => `
+                <div onclick="${item.link ? `window.open('${item.link}', '_blank')` : item.text ? `alert(\`${item.text}\`)` : `alert('Coming Soon!')`}" 
+                     class="p-5 bg-slate-50 rounded-2xl flex justify-between items-center border border-slate-100 active:bg-slate-100">
+                    <div class="flex items-center"><span class="text-3xl mr-4">${item.icon}</span><span class="font-extrabold">${item.name}</span></div>
+                    <i class="fa-solid fa-arrow-right text-slate-300"></i>
+                </div>
+            `).join('');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function closeOverlay() { document.getElementById('overlay').classList.remove('active'); }
+
+        function goToHotel() {
+            let addr = localStorage.getItem('myHotel');
+            if(!addr) {
+                addr = prompt("Type your Hotel Address or Name:");
+                if(addr) localStorage.setItem('myHotel', addr);
+            }
+            if(addr) window.open(`https://www.google.com/maps/search/${encodeURIComponent(addr)}`, '_blank');
+        }
+
+        // 초기 실행
+        showChecklist('pre');
+    </script>
+</body>
+</html>
