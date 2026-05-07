@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TripAid - Your Korea Survival Kit</title>
+    <title>TripAid - Korea Survival Kit</title>
     
-    <!-- PWA & Mobile Meta -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#2563eb">
@@ -15,122 +14,202 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Noto+Sans+KR:wght@900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@700;900&display=swap');
+        :root { --primary: #2563eb; }
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f1f5f9; color: #1e293b; user-select: none; }
         .kr { font-family: 'Noto Sans KR', sans-serif; }
-        .app-container { max-width: 1200px; margin: 0 auto; }
-        .overlay { display: none; position: fixed; inset: 0; background: white; z-index: 3000; overflow-y: auto; }
-        .overlay.active { display: block; animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        #sos-fullscreen { display: none; position: fixed; inset: 0; background: #000; color: white; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; text-align: center; }
+        
+        /* 앱 프레임 고정 (PC/모바일 공용) */
+        .app-frame { 
+            position: relative;
+            max-width: 500px; 
+            margin: 0 auto; 
+            background-color: #ffffff; 
+            min-height: 100dvh; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.1); 
+        }
+
+        /* 오버레이 버그 수정 (100dvh 반영) */
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 100%; 
+            max-width: 500px; 
+            height: 100dvh; 
+            background: white; 
+            z-index: 3000; 
+            overflow-y: auto; 
+        }
+        .overlay.active { display: block; animation: slideUp 0.25s ease-out; }
+        @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+        
+        #sos-fullscreen { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: #000; 
+            color: white; 
+            z-index: 5000; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 2rem; 
+            text-align: center; 
+            max-width: 500px; 
+            margin: 0 auto;
+        }
         #sos-fullscreen.active { display: flex; }
-        #toast { visibility: hidden; position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-weight: bold; z-index: 6000; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        
+        /* 하단 내비게이션 (고정 위치 수정) */
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 100%; 
+            max-width: 500px; 
+            background: rgba(255, 255, 255, 0.98); 
+            border-top: 1px solid rgba(0,0,0,0.05); 
+            z-index: 2500; 
+            height: 70px; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        #toast { 
+            visibility: hidden; 
+            position: fixed; 
+            left: 50%; 
+            bottom: 100px; 
+            transform: translateX(-50%); 
+            background: #1e293b; 
+            color: #fff; 
+            padding: 12px 24px; 
+            border-radius: 50px; 
+            font-size: 13px;
+            font-weight: 600; 
+            z-index: 6000; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: 0.3s;
+        }
         #toast.show { visibility: visible; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid rgba(0,0,0,0.05); z-index: 2000; height: 75px; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
-        .btn-tap:active { transform: scale(0.95); transition: 0.1s; }
+        .btn-tap:active { transform: scale(0.97); transition: 0.1s; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-20">
 
-    <div class="app-container">
+    <div class="app-frame">
         <!-- [상단 헤더] -->
-        <header class="p-6 pt-10 bg-white border-b sticky top-0 z-50 flex flex-col items-center md:flex-row md:justify-between">
-            <div>
-                <h1 class="text-3xl font-black italic text-blue-600 tracking-tighter">TripAid</h1>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden md:block">Korea Survival Master</p>
-            </div>
-            <div id="tip-ticker" class="w-full md:max-w-md mt-3 md:mt-0 bg-slate-900 text-white p-3 rounded-2xl shadow-inner min-h-[50px] flex items-center justify-center overflow-hidden">
-                <p id="random-tip" class="text-[11px] font-bold leading-tight text-center px-4"></p>
+        <header class="p-5 pt-10 bg-white border-b sticky top-0 z-50 flex flex-col items-center">
+            <h1 class="text-2xl font-black italic text-blue-600 tracking-tighter">TripAid</h1>
+            <div id="tip-ticker" class="w-full mt-3 bg-slate-900 text-white p-3 rounded-2xl min-h-[50px] flex items-center justify-center">
+                <p id="random-tip" class="text-[11px] font-semibold leading-tight text-center px-4"></p>
             </div>
         </header>
 
-        <main class="p-5 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <main class="p-5 space-y-6">
             
-            <div class="md:col-span-2 space-y-6">
-                <!-- 🚨 SOS 버튼 -->
-                <button id="main-sos-btn" class="btn-tap w-full p-10 bg-red-600 text-white rounded-[3rem] shadow-2xl flex flex-col items-center justify-center gap-2">
-                    <span class="text-5xl animate-pulse">🚨</span>
-                    <span class="text-3xl font-black italic tracking-tight uppercase">I'M LOST / SOS</span>
-                    <span class="text-[11px] font-bold opacity-70 uppercase tracking-widest">Tap to get immediate local help</span>
+            <!-- [핵심 SOS] -->
+            <button id="main-sos-btn" class="btn-tap w-full p-8 bg-red-600 text-white rounded-[2.5rem] shadow-2xl flex flex-col items-center justify-center gap-2">
+                <span class="text-4xl">🚨</span>
+                <span class="text-2xl font-black italic tracking-tight">I'M LOST / SOS</span>
+                <span class="text-[10px] font-bold opacity-70 uppercase tracking-widest">Immediate Survival Help</span>
+            </button>
+
+            <!-- [GPS & Guide] -->
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="whereAmI()" class="btn-tap p-5 bg-white border-2 border-blue-600 rounded-[2rem] flex flex-col items-center justify-center h-32">
+                    <i class="fa-solid fa-location-crosshairs text-blue-600 text-2xl mb-2"></i>
+                    <span class="font-bold text-[11px] text-blue-600 uppercase">Where Am I?</span>
                 </button>
-
-                <!-- 핵심 기능 그리드 -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div onclick="openCategory('speak')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36">
-                        <i class="fa-solid fa-comment-dots text-blue-600 text-3xl mb-2"></i>
-                        <span class="font-black text-[10px] uppercase">Speak Cards</span>
-                    </div>
-                    <div onclick="openCategory('transport')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36">
-                        <i class="fa-solid fa-map-location-dot text-slate-800 text-3xl mb-2"></i>
-                        <span class="font-black text-[10px] uppercase">Navigation</span>
-                    </div>
-                    <div onclick="openCategory('emergency')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36">
-                        <i class="fa-solid fa-hospital text-red-500 text-3xl mb-2"></i>
-                        <span class="font-black text-[10px] uppercase">Emergency</span>
-                    </div>
-                    <div onclick="openCategory('essentials')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36">
-                        <i class="fa-solid fa-bolt text-emerald-500 text-3xl mb-2"></i>
-                        <span class="font-black text-[10px] uppercase">Utilities</span>
-                    </div>
-                </div>
-
-                <section onclick="openArticle()" class="btn-tap bg-white p-8 rounded-[3rem] border border-slate-200 shadow-sm cursor-pointer">
-                    <h2 class="text-2xl font-black italic mb-4">"How to Survive in Korea"</h2>
-                    <p class="text-slate-500 text-sm leading-relaxed line-clamp-3 italic">Google Maps won't guide you. Naver is king. Learn why tipping is rude and how to handle the 220V system in our master handbook...</p>
-                </section>
+                <button onclick="openArticle()" class="btn-tap p-5 bg-amber-400 rounded-[2rem] flex flex-col items-center justify-center h-32">
+                    <i class="fa-solid fa-book-open text-amber-900 text-2xl mb-2"></i>
+                    <span class="font-bold text-[11px] text-amber-900 uppercase">Master Guide</span>
+                </button>
             </div>
 
-            <div class="space-y-6">
-                <!-- 호텔 위젯 -->
-                <section class="bg-blue-600 p-8 rounded-[3rem] shadow-xl text-white text-left">
-                    <div id="hotel-info-card" class="hidden mb-6">
-                        <h3 id="h-name" class="text-2xl font-black italic leading-tight">Hotel Name</h3>
-                        <p id="h-addr" class="text-xs opacity-80 mt-2 break-all"></p>
-                    </div>
-                    <button onclick="goHome()" class="btn-tap w-full p-6 bg-white text-blue-600 rounded-[2.2rem] flex justify-between items-center shadow-lg font-black italic mb-4">
-                        <div class="flex items-center"><i class="fa-solid fa-house-flag mr-3"></i>GO TO HOTEL</div>
-                        <i class="fa-solid fa-taxi text-yellow-500"></i>
-                    </button>
-                    <button onclick="openHotelModal()" class="w-full text-center text-[10px] font-black uppercase underline opacity-70">Update My Stay Info</button>
-                </section>
-
-                <button onclick="openAllTips()" class="w-full p-6 bg-amber-400 text-amber-900 rounded-[2.5rem] font-black italic flex justify-between items-center shadow-lg">
-                    <span>SEE ALL 100 SURVIVAL TIPS</span>
-                    <i class="fa-solid fa-list-ul"></i>
-                </button>
-                
-                <!-- 제휴사 링크 -->
-                <div class="grid grid-cols-1 gap-2">
-                    <a href="https://go.nordvpn.net/aff_c?offer_id=15&aff_id=141918&url_id=23180" class="flex items-center justify-between p-4 bg-white rounded-2xl border text-[10px] font-bold text-slate-400">🛡 NordVPN (WiFi Security)</a>
-                    <a href="https://linktr.ee/dedle" class="flex items-center justify-between p-4 bg-white rounded-2xl border text-[10px] font-bold text-slate-400">🌐 eSIM & Official Links</a>
+            <!-- [상황별 카테고리] -->
+            <div class="grid grid-cols-2 gap-4">
+                <div onclick="openCategory('speak')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36 text-center">
+                    <i class="fa-solid fa-comment-dots text-blue-600 text-2xl mb-2"></i>
+                    <span class="font-bold text-[10px] uppercase">Speak Cards</span>
+                </div>
+                <div onclick="openCategory('transport')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36 text-center">
+                    <i class="fa-solid fa-map-location-dot text-slate-800 text-2xl mb-2"></i>
+                    <span class="font-bold text-[10px] uppercase">Navi / Maps</span>
+                </div>
+                <div onclick="openCategory('emergency')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36 text-center">
+                    <i class="fa-solid fa-hospital text-red-500 text-2xl mb-2"></i>
+                    <span class="font-bold text-[10px] uppercase">Emergency</span>
+                </div>
+                <div onclick="openCategory('essentials')" class="btn-tap p-5 bg-white border rounded-[2rem] shadow-sm flex flex-col items-center justify-center h-36 text-center">
+                    <i class="fa-solid fa-bolt text-emerald-500 text-2xl mb-2"></i>
+                    <span class="font-bold text-[10px] uppercase">Utilities</span>
                 </div>
             </div>
+
+            <!-- [스마트 호텔 위젯] -->
+            <section class="bg-blue-600 p-8 rounded-[3rem] shadow-xl text-white text-left">
+                <div id="hotel-info-card" class="hidden mb-6">
+                    <h3 id="h-name" class="text-2xl font-black italic">Hotel Name</h3>
+                    <p id="h-addr" class="text-xs opacity-80 mt-2 break-words font-medium"></p>
+                </div>
+                <button onclick="goHome()" class="btn-tap w-full p-5 bg-white text-blue-600 rounded-[2rem] flex justify-between items-center shadow-lg font-black italic">
+                    <span>GO TO HOTEL</span><i class="fa-solid fa-taxi text-yellow-500"></i>
+                </button>
+                <button onclick="openHotelModal()" class="w-full mt-4 text-center text-[10px] font-bold uppercase underline opacity-60">Edit Stay Info</button>
+            </section>
+
+            <!-- [모든 팁 보기] -->
+            <button onclick="openAllTips()" class="w-full p-6 bg-amber-400 text-amber-900 rounded-[2.5rem] font-black italic flex justify-between items-center shadow-lg">
+                <span>SEE ALL 100 SURVIVAL TIPS</span><i class="fa-solid fa-list-ul"></i>
+            </button>
+
+            <!-- [제휴사] -->
+            <div class="grid grid-cols-1 gap-2">
+                <a href="https://go.nordvpn.net/aff_c?offer_id=15&aff_id=141918&url_id=23180" target="_blank" class="flex items-center justify-between p-4 bg-white rounded-2xl border text-[10px] font-bold text-slate-400">🛡 Secure WiFi (NordVPN)</a>
+                <a href="https://linktr.ee/dedle" target="_blank" class="flex items-center justify-between p-4 bg-white rounded-2xl border text-[10px] font-bold text-slate-400">🌐 eSIM & Official Links</a>
+            </div>
+
+            <footer class="py-10 text-center space-y-8 border-t border-slate-100">
+                <a href="https://buymeacoffee.com/djawjdaks8g" target="_blank" class="inline-flex items-center bg-yellow-400 text-yellow-900 px-10 py-4 rounded-full font-black shadow-lg">SUPPORT TRIPAID</a>
+                <div class="flex justify-center gap-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                    <a href="privacy.html">Privacy</a>
+                    <a href="terms.html">Terms</a>
+                    <a href="support.html">Support</a>
+                </div>
+                <p class="text-[9px] text-slate-300">© 2025 TripAid | offthemain@proton.me</p>
+            </footer>
         </main>
 
-        <footer class="p-10 text-center space-y-6 border-t mt-10">
-            <a href="https://buymeacoffee.com/djawjdaks8g" target="_blank" class="inline-flex items-center bg-yellow-400 text-yellow-900 px-12 py-5 rounded-full font-black shadow-2xl text-lg btn-tap">SUPPORT US</a>
-            <div class="flex justify-center gap-8 text-[11px] font-black text-slate-300 uppercase tracking-widest">
-                <a href="privacy.html">Privacy</a>
-                <a href="terms.html">Terms</a>
-                <a href="support.html">Support</a>
-            </div>
-        </footer>
+        <!-- [하단 내비 바] -->
+        <nav class="bottom-nav">
+            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center"><i class="fa-solid fa-house text-blue-600 text-xl"></i><span class="text-[9px] font-bold">Home</span></button>
+            <button onclick="openCategory('speak')" class="flex flex-col items-center"><i class="fa-solid fa-comment-dots text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Speak</span></button>
+            <button onclick="openAllTips()" class="flex flex-col items-center"><i class="fa-solid fa-lightbulb text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Tips</span></button>
+            <button onclick="openCategory('transport')" class="flex flex-col items-center"><i class="fa-solid fa-map-location-dot text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Navi</span></button>
+        </nav>
     </div>
 
-    <!-- [하단 바] -->
-    <nav class="bottom-nav md:hidden">
-        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center"><i class="fa-solid fa-house text-blue-600 text-xl"></i><span class="text-[9px] font-bold">Home</span></button>
-        <button onclick="openCategory('speak')" class="flex flex-col items-center"><i class="fa-solid fa-comment-dots text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Speak</span></button>
-        <button onclick="openAllTips()" class="flex flex-col items-center"><i class="fa-solid fa-lightbulb text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Tips</span></button>
-        <button onclick="openCategory('lounge')" class="flex flex-col items-center"><i class="fa-solid fa-users text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Lounge</span></button>
-    </nav>
-
-    <!-- [SOS 카드] -->
+    <!-- [🚨 SOS 풀스크린 모드] -->
     <div id="sos-fullscreen">
         <button onclick="closeSOS()" class="absolute top-10 right-10 text-4xl text-slate-600 p-4">&times;</button>
-        <p id="sos-en" class="text-xl font-bold text-slate-500 mb-2 uppercase italic"></p>
-        <h2 id="sos-kr" class="kr text-5xl font-black leading-tight mb-12 text-yellow-400 break-keep"></h2>
-        <button onclick="playTTS()" class="w-full max-w-xs py-6 bg-blue-600 text-white rounded-2xl font-black text-2xl shadow-2xl">SPEAK OUT</button>
+        <div class="w-full">
+            <p id="sos-en" class="text-lg font-bold text-slate-500 mb-2 uppercase italic"></p>
+            <h2 id="sos-kr" class="kr text-5xl font-black leading-tight mb-12 text-yellow-400 break-keep"></h2>
+        </div>
+        <div class="w-full max-w-xs space-y-4">
+            <button onclick="playTTS()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black text-xl flex items-center justify-center gap-4">
+                <i class="fa-solid fa-volume-high"></i> SPEAK OUT
+            </button>
+            <button onclick="copySOS()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-xs">COPY KR + EN TEXT</button>
+        </div>
+        <p class="mt-12 text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">Show this to a Korean local</p>
     </div>
 
     <!-- [OVERLAY] -->
@@ -144,13 +223,16 @@
 
     <!-- [HOTEL MODAL] -->
     <div id="hotel-modal" class="fixed inset-0 bg-black/70 z-[6000] hidden flex items-end sm:items-center justify-center">
-        <div class="bg-white w-full max-w-lg rounded-t-[3rem] p-8 space-y-6">
-            <h2 class="text-2xl font-black uppercase">Save Stay</h2>
-            <input type="text" id="in-h-name" placeholder="Hotel Name" class="w-full p-4 bg-slate-100 rounded-2xl font-bold">
-            <input type="text" id="in-h-addr" placeholder="Address (Korean)" class="w-full p-4 bg-slate-100 rounded-2xl font-bold">
+        <div class="bg-white w-full max-w-lg rounded-t-[3rem] p-8 space-y-5 shadow-2xl">
+            <h2 class="text-xl font-black uppercase">Save Stay Info</h2>
+            <div class="space-y-3">
+                <input type="text" id="in-h-name" placeholder="Hotel Name" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none">
+                <input type="text" id="in-h-addr" placeholder="Address (Korean Recommended)" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none">
+                <input type="tel" id="in-h-tel" placeholder="Phone Number" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none">
+            </div>
             <div class="flex gap-2">
-                <button onclick="closeHotelModal()" class="flex-1 py-4 bg-slate-100 rounded-2xl font-black">Cancel</button>
-                <button onclick="saveHotel()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black">Save</button>
+                <button onclick="closeHotelModal()" class="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase text-xs">Cancel</button>
+                <button onclick="saveHotel()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs">Save</button>
             </div>
         </div>
     </div>
@@ -158,117 +240,206 @@
     <div id="toast">✅ Done</div>
 
     <script>
-        // 1. 팁 데이터 (100개 이상)
+        /** 
+         * TRIPAID CORE LOGIC 
+         */
+
+        // 1. 100가지 상황별 생존 팁 (리얼 콘텐츠)
         const TIPS = [
             "Use Naver Map for walking; Google is often incorrect in Korea.",
             "Tipping is not required or expected. Service is always included.",
             "Subway restrooms are free, clean, and in every station.",
             "WOWPASS kiosks allow currency exchange to a card instantly.",
-            "Say 'Annyeong-haseyo' for friendlier service.",
-            "The red subway seats are for elderly/pregnant only. Leave them empty.",
-            "Most Korean homes and traditional restaurants require removing shoes.",
-            "T-Money cards can be recharged at any convenience store with cash.",
-            "Drinking tap water is safe for brushing, but locals buy bottled water.",
-            "Public drinking is legal, but keep noise levels down at night.",
+            "Say 'Annyeong-haseyo' for much friendlier service.",
+            "Most Korean homes and restaurants require removing shoes.",
+            "T-Money cards can be recharged at any convenience store.",
             "Always stand on the right side of the escalator.",
+            "Drinking tap water is safe for hygiene, but Koreans buy bottled.",
             "Trash bins are rare; look for them inside subway stations.",
-            "Press the bell on your table to call a waiter in most restaurants.",
+            "Press the bell on your table to call a waiter in restaurants.",
             "Papago is more accurate for Korean translation than Google.",
             "220V power with Type C or F (European) plugs is standard.",
             "Emergency: Police 112, Medical/Fire 119.",
-            "Many cafes are open late and have fast WiFi with power outlets.",
-            "Taxis with a red 'Available' sign are ready to pick you up.",
-            "Carry your passport for instant tax refunds at major shops.",
-            "Kakao T is the best app to call a taxi online.",
-            "Traditional markets are the best place for cheap, authentic food.",
+            "Kakao T is the best app to call a taxi.",
+            "Department store food courts (B1) are high quality and fair priced.",
+            "Avoid loud conversations on the subway; it's considered rude.",
             "Wait for passengers to exit before you board the train.",
-            "If you lose your phone, check 'Lost112.go.kr'.",
-            "Korean food is often shared; ordering for 'everyone' is common.",
-            "Subway transfers are free if made within 30 minutes.",
-            "Bowing slightly is a polite way to say thank you or goodbye.",
-            "Most elevators skip the 4th floor or use 'F' instead of '4'.",
-            "Convenience store food (Ramen, Gimbap) is high quality in Korea.",
-            "Air conditioning in subways is strong; carry a light jacket.",
-            "Download 'Subway Korea' app for real-time train data."
-            // ... 데이터 확장 가능
+            "Many restaurants have self-service for water and side dishes.",
+            "Carry your passport for instant tax refunds at major shops.",
+            "Korea uses '1F' instead of 'Ground Floor'.",
+            "Convenience store food (Ramen/Gimbap) is safe and high quality.",
+            "Most elevators skip the 4th floor or use 'F' for 4.",
+            "The red seats in the subway are for elderly/pregnant only.",
+            "Public drinking is legal in parks like the Han River.",
+            "Watch out for food delivery motorcycles on sidewalks.",
+            "Check for 'Tax Free' signs to save 3-10% immediately.",
+            "Most museums are closed on Mondays.",
+            "Download 'Subway Korea' for real-time train schedules.",
+            "If you lose your phone, visit 'lost112.go.kr'.",
+            "Seoul is safe at 3 AM, but stay in well-lit areas.",
+            "Try 'Traditional Markets' for the best street food.",
+            "Seoul subway seats are heated in winter.",
+            "Koreans use 'Age' differently; don't be offended if asked.",
+            "Always use crosswalks; jaywalking is dangerous here.",
+            "Bowing slightly when greeting shows respect.",
+            "Most coffee shops have fast WiFi and many outlets.",
+            "Daiso is the best place for cheap travel essentials.",
+            "Olive Young is the go-to for K-beauty and skincare.",
+            "Traditional Palaces are free if you wear a Hanbok.",
+            "Public libraries are quiet places for free WiFi.",
+            "Seoul is hilly; wear very comfortable shoes.",
+            "Taxis with a 'Red Light' on the dash are available.",
+            "Black taxis (Deluxe) are twice as expensive as orange/silver.",
+            "Most toilets have an 'SOS' button for emergencies.",
+            "Plastic bags cost extra (100 KRW) in grocery stores.",
+            "Fine Dust (Mise-monji) levels can be high; wear a mask.",
+            "Wet wipes are provided in restaurants instead of napkins.",
+            "Use both hands when giving or receiving money.",
+            "Subway transfer is free within 30 minutes.",
+            "Keep T-Money balance above 2,000 KRW for buses.",
+            "Check AREX schedule for Incheon Airport express trains.",
+            "N-Buses (Owl Bus) are the only transit after 1 AM.",
+            "Banks are open 09:00 to 16:00, weekdays only.",
+            "Try 'Kimbap Cheonguk' for fast, cheap local food.",
+            "Most subway stations have self-service lockers.",
+            "Seoul is divided by the Han River (North/South).",
+            "Try 'Convenience Store Cocktails' (Ice cup + Pouch drink).",
+            "Korean homes use digital door locks, not keys.",
+            "Drinking water in restaurants is always free.",
+            "Don't stick chopsticks upright in your rice bowl.",
+            "Don't blow your nose loudly in public restaurants.",
+            "Wait for elders to board the bus first.",
+            "PC Bangs (Gaming centers) are open 24/7.",
+            "Avoid the subway during rush hour (08:00 and 18:00).",
+            "Seoul City Tour Bus covers major landmarks.",
+            "Traditional tea houses are great in Insadong.",
+            "Check IDs (Passport) at clubs in Hongdae/Itaewon.",
+            "Shared food is core to Korean dining culture.",
+            "Seoul Forest is perfect for a spring picnic.",
+            "Koreans are shy but helpful if you ask first.",
+            "The 'Climate Card' offers unlimited monthly transit.",
+            "AED machines are in most public buildings.",
+            "Street vendors prefer cash or bank transfer.",
+            "Avoid 'Black Taxis' unless you want luxury pricing.",
+            "Steep stairs are common in older subway stations.",
+            "Look for elevators if you have heavy luggage.",
+            "Try 'Jjimjilbang' for a local spa experience.",
+            "Most public spaces are non-smoking.",
+            "Seoul subway has strong air conditioning in summer.",
+            "Incheon Airport has the best SIM card desks.",
+            "Green tea and Barley tea are commonly served.",
+            "Restaurant leftovers can be packed (ask for 'Po-jang').",
+            " Seoul City WiFi (Public WiFi Free) is everywhere.",
+            "Check for 'Global' button on ATMs for foreign cards.",
+            "Most malls open late (10:30 AM).",
+            "Be prepared for crowds in Myeongdong.",
+            "Public parks have free exercise equipment.",
+            "Korean 'Chicken and Beer' is a must cultural try.",
+            "Always check 'Last Train' time around midnight.",
+            "Enjoy the Han River delivery food experience.",
+            "Most toilets use high-tech bidets.",
+            "Seoul is safe, but keep an eye on your bag in crowds.",
+            "Use 'Map.Naver.com' for the most accurate bus times.",
+            "Kyobo Book Centre has a massive English section.",
+            "Traditional Palace entry is free on Culture Day (Last Wed).",
+            "Convenience stores sell basic medicines like Tylenol.",
+            "TripAid works offline for your saved hotel and SOS.",
+            "Enjoy your stay! Korea is safe and welcoming."
         ];
 
-        // 2. 스피크 카드 데이터 (대폭 확장)
+        // 2. Speak Card 문구 (한국인 감수로 자연스럽게 수정)
         const SPEAK_DATA = {
             taxi: [
-                { n:"Take me to this address", a:["Please take me here.", "이 주소로 가주세요."] },
-                { n:"Please open the trunk", a:["Can you open the trunk?", "트렁크 좀 열어주세요."] },
-                { n:"I need a receipt", a:["Can I have a receipt?", "영수증 좀 주실래요?"] },
-                { n:"Turn on the AC", a:["Turn on the AC, please.", "에어컨 좀 틀어주세요."] },
-                { n:"Stop here, please", a:["Please stop right here.", "여기서 세워주세요."] }
+                { n:"Go to this address", a:["Please take me to this address.", "이 주소로 가주세요."] },
+                { n:"Open the trunk", a:["Could you open the trunk, please?", "트렁크 좀 열어주실 수 있나요?"] },
+                { n:"Receipt, please", a:["May I have a receipt?", "영수증 좀 주시겠어요?"] },
+                { n:"Stop here", a:["Please stop here.", "여기서 세워주세요."] },
+                { n:"Is it far?", a:["Is it still far from here?", "아직 멀었나요?"] }
             ],
             hotel: [
-                { n:"Check-in, please", a:["I'd like to check in.", "체크인 하고 싶어요."] },
-                { n:"Keep my luggage?", a:["Can you store my bags?", "짐 좀 맡겨주실 수 있나요?"] },
-                { n:"Room is cold", a:["The room is cold.", "방이 너무 추워요."] },
-                { n:"WiFi Password?", a:["What is the WiFi password?", "와이파이 비밀번호가 뭐예요?"] },
-                { n:"Broken item", a:["Something is broken in my room.", "방에 물건이 고장 났어요."] }
+                { n:"Check-in", a:["I'd like to check in.", "체크인 하고 싶습니다."] },
+                { n:"Store luggage", a:["Can I leave my bags here?", "짐 좀 맡아주실 수 있나요?"] },
+                { n:"Room is cold", a:["The room is too cold.", "방이 너무 추워요."] },
+                { n:"No towels", a:["I need more towels.", "수건이 더 필요해요."] },
+                { n:"WiFi Password", a:["What's the WiFi password?", "와이파이 비밀번호가 뭐예요?"] }
             ],
             urgent: [
-                { n:"Help me!", a:["Please help me!", "도와주세요!"] },
-                { n:"Lost my bag", a:["I lost my bag/wallet.", "가방/지갑을 잃어버렸어요."] },
-                { n:"Need a doctor", a:["I need to see a doctor.", "의사가 필요해요 (아파요)."] },
-                { n:"Where is police?", a:["Where is the police station?", "파출소가 어디인가요?"] },
-                { n:"Call my embassy", a:["Please call my embassy.", "우리나라 대사관에 전화해주세요."] }
+                { n:"Help me", a:["Please help me!", "도와주세요!"] },
+                { n:"Call Police", a:["Please call the police.", "경찰을 불러주세요."] },
+                { n:"Lost bag", a:["I lost my bag/wallet.", "가방(지갑)을 잃어버렸어요."] },
+                { n:"Hospital", a:["Take me to the nearest ER.", "가장 가까운 응급실로 가주세요."] },
+                { n:"Call Embassy", a:["Please call my embassy.", "우리나라 대사관에 전화해주세요."] }
             ],
             dining: [
-                { n:"No Meat, please", a:["No meat, please.", "고기는 빼주세요."] },
-                { n:"Not spicy", a:["Not spicy, please.", "맵지 않게 해주세요."] },
-                { n:"Check please", a:["Check, please.", "계산서 좀 주세요."] },
-                { n:"Water please", a:["Water, please.", "물 좀 주세요."] },
-                { n:"Recommend menu?", a:["What is good here?", "추천 메뉴가 뭐예요?"] }
+                { n:"No meat", a:["No meat, please. (Vegetarian)", "고기는 빼주세요. (채식주의자입니다)"] },
+                { n:"Not spicy", a:["Please make it not spicy.", "맵지 않게 해주세요."] },
+                { n:"Check please", a:["Check, please.", "계산해 주세요."] },
+                { n:"Water please", a:["Can I have some water?", "물 좀 주시겠어요?"] },
+                { n:"Is it pork?", a:["Is this pork?", "이거 돼지고기인가요?"] }
             ],
             daily: [
-                { n:"Where is toilet?", a:["Where is the toilet?", "화장실이 어디예요?"] },
-                { n:"Is this free?", a:["Is this free?", "이거 공짜인가요?"] },
-                { n:"How much?", a:["How much is this?", "이거 얼마예요?"] },
-                { n:"Tax refund?", a:["Tax refund possible?", "텍스 리펀 되나요?"] },
-                { n:"One plastic bag", a:["One bag, please.", "봉투 하나 주세요."] }
+                { n:"Toilet?", a:["Where is the restroom?", "화장실이 어디인가요?"] },
+                { n:"How much?", a:["How much is this?", "이거 얼마인가요?"] },
+                { n:"Tax refund", a:["Do you offer Tax Refunds?", "텍스 리펀 되나요?"] },
+                { n:"Card okay?", a:["Can I pay by card?", "카드 결제 되나요?"] },
+                { n:"Plastic bag", a:["One plastic bag, please.", "비닐봉투 하나 주세요."] }
             ]
         };
 
         const CATEGORIES = {
-            speak: { t:"Choose Situation", i:[
-                { n:"Taxi / Move", i:"🚖", s:"taxi" },
+            speak: { t:"Situational Speak Cards", i:[
+                { n:"Taxi / Transport", i:"🚖", s:"taxi" },
                 { n:"Hotel / Stay", i:"🏨", s:"hotel" },
-                { n:"Urgent / SOS", i:"🚨", s:"urgent" },
+                { n:"Emergency / SOS", i:"🚨", s:"urgent" },
                 { n:"Food / Dining", i:"🍜", s:"dining" },
-                { n:"Shopping / Life", i:"🛍️", s:"daily" }
+                { n:"Life / Shopping", i:"🛍️", s:"daily" }
             ]},
-            transport: { t:"Navigation", i:[
-                { n:"Naver Map (Best)", i:"🧭", l:"https://m.map.naver.com" },
-                { n:"Subway Search", i:"🚇", l:"https://m.map.naver.com/search2/search.naver?query=Subway" },
-                { n:"WOWPASS Kiosk", i:"💳", l:"https://m.map.naver.com/search2/search.naver?query=WOWPASS" }
+            transport: { t:"Navigation Help", i:[
+                { n:"Naver Map (App Search)", i:"🧭", q:"Naver Map" },
+                { n:"Subway Station", i:"🚇", q:"Subway Station" },
+                { n:"WOWPASS Kiosk", i:"💳", q:"WOWPASS" },
+                { n:"Taxi Stand", i:"🚕", q:"Taxi Stand" }
             ]},
-            emergency: { t:"Medical & Safe", i:[
-                { n:"Hospital (Naver)", i:"🏥", l:"https://m.map.naver.com/search2/search.naver?query=International+Hospital" },
-                { n:"Pharmacy (Naver)", i:"💊", l:"https://m.map.naver.com/search2/search.naver?query=Pharmacy" },
-                { n:"Police (Naver)", i:"👮", l:"https://m.map.naver.com/search2/search.naver?query=Police" }
+            emergency: { t:"Safety & Medical", i:[
+                { n:"Hospital (ER)", i:"🏥", q:"Emergency Hospital" },
+                { n:"24h Pharmacy", i:"💊", q:"Pharmacy" },
+                { n:"Police Station", i:"👮", q:"Police Station" }
             ]},
             essentials: { t:"Daily Utilities", i:[
-                { n:"Toilet (Naver)", i:"🚻", l:"https://m.map.naver.com/search2/search.naver?query=Public+Toilet" },
-                { n:"Locker (Naver)", i:"🧳", l:"https://m.map.naver.com/search2/search.naver?query=Locker" },
-                { n:"Coin Laundry", i:"🧺", l:"https://m.map.naver.com/search2/search.naver?query=Laundry" }
+                { n:"Public Toilet", i:"🚻", q:"Public Toilet" },
+                { n:"Locker / Storage", i:"🧳", q:"Luggage Storage" },
+                { n:"Coin Laundry", i:"🧺", q:"Laundry" },
+                { n:"Conv. Store", i:"🏪", q:"Convenience Store" }
             ]},
-            lounge: { t:"Lounge", i:[{n:"Coming Soon", i:"💬", s:"soon"}]}
+            lounge: { t:"Traveler Lounge", i:[{n:"Community Coming Soon", i:"💬", s:"soon"}]}
         };
 
-        // 3. 기능 로직
+        // 3. 네이버 지도 딥링크 가중치 로직
+        function openMap(query) {
+            const webUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(query)}`;
+            // 딥링크 시도 (nmap) - 실패 시 웹으로 브라우징
+            const deepLink = `nmap://search?query=${encodeURIComponent(query)}&appname=com.tripaid.app`;
+            
+            // 모바일일 경우 딥링크 시도, 아니면 새 창으로 웹 열기
+            if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                window.location.href = deepLink;
+                setTimeout(() => { window.open(webUrl, '_blank'); }, 500);
+            } else {
+                window.open(webUrl, '_blank');
+            }
+        }
+
+        // 4. 기능 핸들러
         const showToast = (m) => {
             const t = document.getElementById("toast");
             t.innerText = m; t.classList.add("show");
-            setTimeout(() => { t.classList.remove("show"); }, 3000);
+            setTimeout(() => { t.classList.remove("show"); }, 2500);
         };
 
         const setTip = () => {
             document.getElementById('random-tip').innerText = `💡 ${TIPS[Math.floor(Math.random() * TIPS.length)]}`;
         };
-        setInterval(setTip, 8000); setTip();
+        setInterval(setTip, 9000); setTip();
 
         let wakeLock = null;
         async function activateSOS(en, kr) {
@@ -285,7 +456,12 @@
 
         function playTTS() {
             const u = new SpeechSynthesisUtterance(document.getElementById('sos-kr').innerText);
-            u.lang = 'ko-KR'; window.speechSynthesis.speak(u);
+            u.lang = 'ko-KR'; u.rate = 0.85; window.speechSynthesis.speak(u);
+        }
+
+        function copySOS() {
+            const t = `${document.getElementById('sos-kr').innerText}\n(${document.getElementById('sos-en').innerText})`;
+            navigator.clipboard.writeText(t).then(() => showToast("✅ Text Copied!"));
         }
 
         function openHotelModal() { document.getElementById('hotel-modal').classList.remove('hidden'); }
@@ -294,47 +470,53 @@
         function saveHotel() {
             const n = document.getElementById('in-h-name').value;
             const a = document.getElementById('in-h-addr').value;
+            const t = document.getElementById('in-h-tel').value;
             if(n && a) {
-                localStorage.setItem('TRIPAID_HOTEL', JSON.stringify({n, a}));
-                loadHotel(); closeHotelModal(); showToast("✅ Saved");
+                try {
+                    localStorage.setItem('TRIPAID_STAY_DATA', JSON.stringify({n, a, t}));
+                    loadHotel(); closeHotelModal(); showToast("✅ Hotel Saved!");
+                } catch(e) { showToast("❌ Save Failed"); }
             }
         }
 
         function loadHotel() {
-            const s = JSON.parse(localStorage.getItem('TRIPAID_HOTEL'));
-            if(s) {
-                document.getElementById('h-name').innerText = s.n;
-                document.getElementById('h-addr').innerText = s.a;
-                document.getElementById('hotel-info-card').classList.remove('hidden');
-            }
+            try {
+                const s = JSON.parse(localStorage.getItem('TRIPAID_STAY_DATA'));
+                if(s) {
+                    document.getElementById('h-name').innerText = s.n;
+                    document.getElementById('h-addr').innerText = s.a;
+                    document.getElementById('hotel-info-card').classList.remove('hidden');
+                }
+            } catch(e) {}
         }
 
         function goHome() {
-            const s = JSON.parse(localStorage.getItem('TRIPAID_HOTEL'));
-            if(!s) return openHotelModal();
-            activateSOS(`Take me to ${s.n}`, `이 주소로 가주세요:\n${s.a}`);
+            try {
+                const s = JSON.parse(localStorage.getItem('TRIPAID_STAY_DATA'));
+                if(!s) return openHotelModal();
+                activateSOS(`Take me to my Hotel`, `이 주소로 가주세요:\n${s.a}\n(연락처: ${s.t || '없음'})`);
+            } catch(e) { openHotelModal(); }
         }
 
         function whereAmI() {
-            showToast("🛰 Locating...");
+            showToast("🛰 Locating you...");
             navigator.geolocation.getCurrentPosition(pos => {
-                location.href = `https://m.map.naver.com/map.naver?lng=${pos.coords.longitude}&lat=${pos.coords.latitude}&level=12`;
-            }, () => { showToast("❌ GPS Failed"); });
+                const url = `https://m.map.naver.com/map.naver?lng=${pos.coords.longitude}&lat=${pos.coords.latitude}&level=12`;
+                window.open(url, '_blank');
+            }, () => { showToast("❌ GPS Failed. Open Map Search."); setTimeout(()=>openMap("My Location"), 1000); });
         }
 
         function openCategory(key) {
             const content = document.getElementById('overlay-content');
             document.getElementById('overlay-title').innerText = CATEGORIES[key].t;
-            
             if(key === 'speak') {
                 content.innerHTML = CATEGORIES.speak.i.map(item => `
-                    <div onclick="openSpeakSub('${item.s}')" class="p-6 bg-slate-50 rounded-3xl border flex items-center"><span class="text-3xl mr-4">${item.i}</span><span class="font-black">${item.n}</span></div>
+                    <div onclick="openSpeakSub('${item.s}')" class="p-6 bg-slate-50 rounded-3xl border flex items-center mb-2"><span class="text-3xl mr-4">${item.i}</span><span class="font-bold">${item.n}</span></div>
                 `).join('');
             } else {
-                content.innerHTML = CATEGORIES[key].i.map(item => {
-                    let action = item.l ? `location.href='${item.l}'` : `showToast('${item.s}')`;
-                    return `<div onclick="${action}" class="p-6 bg-slate-50 rounded-3xl border flex justify-between items-center"><div class="flex items-center"><span class="text-3xl mr-4">${item.i}</span><span class="font-black uppercase">${item.n}</span></div><i class="fa-solid fa-chevron-right text-slate-300"></i></div>`;
-                }).join('');
+                content.innerHTML = CATEGORIES[key].i.map(item => `
+                    <div onclick="openMap('${item.q}')" class="p-6 bg-slate-50 rounded-3xl border flex justify-between items-center mb-2"><div class="flex items-center"><span class="text-3xl mr-4">${item.i}</span><span class="font-bold text-sm uppercase">${item.n}</span></div><i class="fa-solid fa-chevron-right text-slate-300"></i></div>
+                `).join('');
             }
             document.getElementById('overlay').classList.add('active');
         }
@@ -343,24 +525,42 @@
             const content = document.getElementById('overlay-content');
             document.getElementById('overlay-title').innerText = sub.toUpperCase();
             content.innerHTML = SPEAK_DATA[sub].map(item => `
-                <div onclick="activateSOS('${item.a[0]}','${item.a[1]}')" class="p-6 bg-slate-50 rounded-3xl border flex justify-between items-center"><span class="font-black uppercase text-sm">${item.n}</span><i class="fa-solid fa-comment-dots text-blue-600"></i></div>
+                <div onclick="activateSOS('${item.a[0]}','${item.a[1]}')" class="p-6 bg-slate-50 rounded-3xl border flex justify-between items-center mb-2"><span class="font-bold uppercase text-[13px] text-left pr-4">${item.n}</span><i class="fa-solid fa-comment-dots text-blue-600"></i></div>
             `).join('');
         }
 
         function openAllTips() {
             const content = document.getElementById('overlay-content');
-            document.getElementById('overlay-title').innerText = "All Tips";
-            content.innerHTML = TIPS.map((t, i) => `<div class="p-4 bg-slate-50 rounded-2xl border-l-4 border-blue-600 mb-2 font-bold text-sm">#${i+1} ${t}</div>`).join('');
+            document.getElementById('overlay-title').innerText = "100 Survival Tips";
+            content.innerHTML = TIPS.map((t, i) => `<div class="p-5 bg-slate-50 rounded-2xl border-l-4 border-blue-600 mb-3 font-semibold text-sm leading-tight">#${i+1} ${t}</div>`).join('');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        function openArticle() {
+            const content = document.getElementById('overlay-content');
+            document.getElementById('overlay-title').innerText = "Survival Guide";
+            content.innerHTML = `
+                <div class="px-2 text-left space-y-5 pb-10">
+                    <h3 class="text-2xl font-black italic">The Map Trap & Survival Rules</h3>
+                    <p class="text-sm leading-relaxed text-slate-600"><b>1. Navigation:</b> Google Maps walking directions are disabled. Use <b>Naver Map</b>. Taxis use Kakao T.</p>
+                    <p class="text-sm leading-relaxed text-slate-600"><b>2. T-Money:</b> Pay for everything: buses, subways, convenience stores, and taxis. Tap your card when entering AND exiting.</p>
+                    <p class="text-sm leading-relaxed text-slate-600"><b>3. Safety:</b> Extremely safe 24/7. CCTV is everywhere. If you lose an item, visit the 'Pachulso' (Police Substation).</p>
+                    <p class="text-sm leading-relaxed text-slate-600"><b>4. Dining:</b> No tipping. Water and side dishes are free. Use the call bell on the table.</p>
+                    <p class="text-sm leading-relaxed text-slate-600"><b>5. Tech:</b> 220V power. Soft water (safe for teeth). Free WiFi is everywhere but use a VPN for security.</p>
+                </div>`;
             document.getElementById('overlay').classList.add('active');
         }
 
         function closeOverlay() { document.getElementById('overlay').classList.remove('active'); }
 
         document.getElementById('main-sos-btn').addEventListener('click', () => {
-            activateSOS("I AM LOST. HELP.", "길을 잃었습니다. 도와주세요.");
+            activateSOS("I AM LOST. PLEASE HELP ME.", "길을 잃었습니다. 도와주세요. 여기가 어디인가요?");
         });
 
         loadHotel();
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
+        }
     </script>
 </body>
 </html>
