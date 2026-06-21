@@ -17,71 +17,42 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Noto+Sans+KR:wght@700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f1f5f9; color: #1e293b; user-select: none; }
         .kr { font-family: 'Noto Sans KR', sans-serif; }
-        
-        /* 전체 컨테이너: PC에서는 가로로 배치, 모바일에서는 세로로 배치 */
-        .app-layout { 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            gap: 24px; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 0;
-        }
-
-        /* 메인 앱 프레임 고정 (어떤 기기든 중심축) */
-        .app-frame { 
-            width: 100%;
-            max-width: 500px; 
-            background-color: #ffffff; 
-            min-height: 100dvh; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.05); 
-            position: relative;
-        }
-
-        /* PC 전용 사이드바 (992px 이상에서만 보임) */
-        .sidebar { 
-            display: none; 
-            width: 280px; 
-            position: sticky; 
-            top: 24px; 
-        }
+        .app-layout { display: flex; justify-content: center; align-items: flex-start; gap: 24px; max-width: 1200px; margin: 0 auto; padding: 0; }
+        .app-frame { width: 100%; max-width: 500px; background-color: #ffffff; min-height: 100dvh; box-shadow: 0 0 40px rgba(0,0,0,0.05); position: relative; }
+        .sidebar { display: none; width: 280px; position: sticky; top: 24px; }
         @media (min-width: 1024px) { .sidebar { display: flex; flex-direction: column; gap: 20px; } }
-
         .overlay { display: none; position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 100dvh; background: white; z-index: 3000; overflow-y: auto; }
         .overlay.active { display: block; }
-        
         #sos-fullscreen { display: none; position: fixed; inset: 0; background: #000; color: white; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; text-align: center; max-width: 500px; margin: 0 auto; }
         #sos-fullscreen.active { display: flex; }
-        
         .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: white; border-top: 1px solid rgba(0,0,0,0.05); z-index: 2500; height: 75px; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); }
         .manual-card { @apply bg-blue-50 p-5 rounded-2xl text-[11px] leading-relaxed text-blue-900 mt-2 border border-blue-100 shadow-inner; }
         #toast { visibility: hidden; position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 50px; font-weight: 600; z-index: 6000; white-space: nowrap; }
         #toast.show { visibility: visible; }
         .btn-tap:active { transform: scale(0.97); transition: 0.1s; }
-        .search-input { @apply w-full p-4 bg-slate-100 rounded-2xl border-none focus:ring-2 focus:ring-pink-500 font-bold text-sm mb-4; }
+        .search-input { @apply w-full p-4 bg-slate-100 rounded-2xl border-none focus:ring-2 focus:ring-pink-500 font-bold text-sm mb-4 text-center; }
     </style>
 </head>
 <body class="md:p-10">
 
     <div class="app-layout">
         
-        <!-- [LEFT SIDEBAR: PC 전용 정보창] -->
+        <!-- [LEFT SIDEBAR] -->
         <aside class="sidebar">
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200">
-                <h3 class="font-black text-blue-600 uppercase text-xs mb-4 italic">Real-time Info</h3>
+                <h3 class="font-black text-blue-600 uppercase text-xs mb-4 italic">Live Info</h3>
                 <div class="space-y-4">
                     <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400 uppercase">Currency</span><span class="font-black text-sm">1,345 ₩/$</span></div>
                     <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400 uppercase">Weather</span><span class="font-black text-sm">Seoul 24°C ☀️</span></div>
                 </div>
             </div>
             <div class="bg-blue-600 p-6 rounded-[2.5rem] shadow-lg text-white">
-                <h3 class="font-black uppercase text-xs mb-2 italic">Hallyu Alert</h3>
-                <p class="text-[11px] leading-relaxed opacity-90 font-medium">New BTS Pop-up store opened in Seongsu-dong! Check 'Steps' for the photo guide.</p>
+                <h3 class="font-black uppercase text-xs mb-2 italic">Notice</h3>
+                <p class="text-[11px] leading-relaxed opacity-90 font-medium italic">You can now add your own favorite gourmet spots! Tap 'Eat' and check the 'Add' button.</p>
             </div>
         </aside>
 
-        <!-- [MAIN APP FRAME: 모든 기기의 중심] -->
+        <!-- [MAIN APP FRAME] -->
         <div class="app-frame">
             <header class="p-5 pt-10 bg-white border-b sticky top-0 z-50 flex flex-col items-center text-center">
                 <h1 class="text-2xl font-black italic text-blue-600 tracking-tighter cursor-pointer" onclick="location.reload()">TripAid</h1>
@@ -91,26 +62,49 @@
             </header>
 
             <main class="p-5 space-y-6 pb-40 text-center">
-                <!-- SOS 버튼 -->
                 <button id="main-sos-btn" class="btn-tap w-full p-8 bg-red-600 text-white rounded-[2.5rem] shadow-2xl flex flex-col items-center justify-center gap-2">
                     <span class="text-4xl">🚨</span>
                     <span class="text-2xl font-black italic tracking-tight uppercase leading-none">I'M LOST / SOS</span>
-                    <span class="text-[10px] font-bold opacity-70 uppercase tracking-widest leading-none mt-1">Tap to show local help screen</span>
+                    <span class="text-[10px] font-bold opacity-70 uppercase tracking-widest leading-none mt-1">Tap for emergency assistance</span>
                 </button>
 
-                <!-- 퀵 액션 -->
                 <div class="grid grid-cols-2 gap-4">
                     <button onclick="whereAmI()" class="btn-tap p-5 bg-white border-2 border-blue-600 rounded-[2rem] flex flex-col items-center justify-center h-32 shadow-sm">
                         <i class="fa-solid fa-location-crosshairs text-blue-600 text-2xl mb-2"></i>
                         <span class="font-bold text-[11px] text-blue-600 uppercase">Where Am I?</span>
                     </button>
-                    <button onclick="openCategory('hallyu')" class="btn-tap p-5 bg-pink-500 rounded-[2rem] flex flex-col items-center justify-center h-32 shadow-lg text-white">
-                        <i class="fa-solid fa-star text-2xl mb-2"></i>
-                        <span class="font-black text-[11px] uppercase tracking-tighter italic">K-Wave Map</span>
+                    <button onclick="openCategory('tourism')" class="btn-tap p-5 bg-amber-400 rounded-[2rem] flex flex-col items-center justify-center h-32 shadow-lg text-amber-900">
+                        <i class="fa-solid fa-camera-retro text-2xl mb-2 animate-bounce"></i>
+                        <span class="font-black text-[11px] uppercase tracking-tighter italic leading-tight">Sightseeing</span>
                     </button>
                 </div>
 
-                <!-- 카테고리 그리드 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="openCategory('gourmet')" class="btn-tap p-4 bg-emerald-500 text-white border rounded-3xl flex flex-col items-center justify-center h-32 shadow-md">
+                        <i class="fa-solid fa-utensils text-2xl mb-2"></i>
+                        <span class="font-bold text-[10px] uppercase">K-Gourmet</span>
+                    </div>
+                    <div onclick="openCategory('hallyu')" class="btn-tap p-4 bg-pink-500 text-white border rounded-3xl flex flex-col items-center justify-center h-32 shadow-md">
+                        <i class="fa-solid fa-star text-2xl mb-2"></i>
+                        <span class="font-bold text-[10px] uppercase">Hallyu</span>
+                    </div>
+                </div>
+
+                <!-- [MOBILE ONLY: Deals] -->
+                <section class="lg:hidden space-y-3">
+                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-left pl-4">Exclusive Travel Deals</h2>
+                    <div class="flex gap-3 overflow-x-auto hide-scroll px-1 pb-2">
+                        <a href="https://www.klook.com" target="_blank" class="flex-none w-40 p-5 bg-white border rounded-3xl shadow-sm text-center">
+                            <span class="text-[9px] font-black text-orange-500 block mb-2 uppercase">20% OFF AREX</span>
+                            <p class="text-[9px] font-bold leading-tight italic">Airport Express Discount</p>
+                        </a>
+                        <a href="https://linktr.ee/dedle" target="_blank" class="flex-none w-40 p-5 bg-slate-900 text-white rounded-3xl shadow-sm text-center">
+                            <span class="text-[9px] font-black text-emerald-400 block mb-2 uppercase">E-SIM Data</span>
+                            <p class="text-[9px] font-bold leading-tight italic">Unlimited 4G Connection</p>
+                        </a>
+                    </div>
+                </section>
+
                 <div class="grid grid-cols-2 gap-3">
                     <div onclick="openCategory('arrival')" class="btn-tap p-4 bg-white border rounded-3xl flex flex-col items-center justify-center h-32">
                         <i class="fa-solid fa-plane-arrival text-blue-500 text-xl mb-2"></i>
@@ -124,119 +118,81 @@
                         <i class="fa-solid fa-comment-dots text-blue-600 text-xl mb-2"></i>
                         <span class="font-bold text-[10px] uppercase">Speak Cards</span>
                     </div>
-                    <div onclick="openCategory('food')" class="btn-tap p-4 bg-white border rounded-3xl flex flex-col items-center justify-center h-32">
-                        <i class="fa-solid fa-utensils text-purple-600 text-xl mb-2"></i>
-                        <span class="font-bold text-[10px] uppercase font-bold">Hometown</span>
-                    </div>
-                </div>
-
-                <!-- [MOBILE ONLY: 모바일 전용 수익형 섹션] -->
-                <!-- PC에서는 사이드바가 있지만, 모바일은 여기에 배치합니다 -->
-                <section class="lg:hidden space-y-3">
-                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest text-left pl-4">Exclusive Travel Deals</h2>
-                    <div class="flex gap-3 overflow-x-auto hide-scroll px-1 pb-2">
-                        <a href="https://www.klook.com" target="_blank" class="flex-none w-40 p-5 bg-white border rounded-3xl shadow-sm text-center">
-                            <span class="text-[9px] font-black text-orange-500 block mb-2 uppercase">20% OFF AREX</span>
-                            <i class="fa-solid fa-train text-slate-400 text-xl mb-1"></i>
-                            <p class="text-[9px] font-bold leading-tight">Airport Express Discount</p>
-                        </a>
-                        <a href="https://linktr.ee/dedle" target="_blank" class="flex-none w-40 p-5 bg-slate-900 text-white rounded-3xl shadow-sm text-center">
-                            <span class="text-[9px] font-black text-emerald-400 block mb-2 uppercase">E-SIM Data</span>
-                            <i class="fa-solid fa-wifi text-slate-500 text-xl mb-1"></i>
-                            <p class="text-[9px] font-bold leading-tight">Unlimited 4G Connection</p>
-                        </a>
-                    </div>
-                </section>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div onclick="openCategory('emergency')" class="btn-tap p-4 bg-white border rounded-3xl flex flex-col items-center justify-center h-32">
-                        <i class="fa-solid fa-hospital text-red-500 text-xl mb-2"></i>
-                        <span class="font-bold text-[10px] uppercase font-bold">Medical</span>
-                    </div>
-                    <div onclick="openCategory('essentials')" class="btn-tap p-4 bg-white border rounded-3xl flex flex-col items-center justify-center h-32">
-                        <i class="fa-solid fa-toilet text-emerald-500 text-xl mb-2"></i>
-                        <span class="font-bold text-[10px] uppercase font-bold">Daily Utils</span>
+                    <div onclick="openCategory('culture')" class="btn-tap p-4 bg-white border rounded-3xl flex flex-col items-center justify-center h-32 text-center">
+                        <i class="fa-solid fa-archway text-orange-700 text-xl mb-2"></i>
+                        <span class="font-bold text-[10px] uppercase font-bold text-center leading-tight">Manners &<br>Tradition</span>
                     </div>
                 </div>
 
                 <!-- 호텔 -->
                 <section class="bg-blue-600 p-8 rounded-[3rem] shadow-xl text-white text-left">
                     <div id="hotel-info-card" class="hidden mb-6">
-                        <h3 id="h-name" class="text-2xl font-black italic tracking-tighter leading-none">Hotel Name</h3>
-                        <p id="h-addr" class="text-[11px] opacity-80 mt-2 font-medium"></p>
+                        <h3 id="h-name" class="text-2xl font-black italic tracking-tighter leading-none text-center">Hotel Name</h3>
+                        <p id="h-addr" class="text-[11px] opacity-80 mt-2 font-medium text-center"></p>
                     </div>
                     <button onclick="goHome()" class="btn-tap w-full p-5 bg-white text-blue-600 rounded-[2rem] flex justify-between items-center shadow-lg font-black italic">
-                        <span>RETURN TO HOTEL</span><i class="fa-solid fa-taxi text-yellow-500"></i>
+                        <span>GO TO HOTEL</span><i class="fa-solid fa-taxi text-yellow-500"></i>
                     </button>
-                    <button onclick="openHotelModal()" class="w-full mt-4 text-center text-[10px] font-bold uppercase underline opacity-60 italic tracking-widest">Update Hotel</button>
+                    <button onclick="openHotelModal()" class="w-full mt-4 text-center text-[10px] font-bold uppercase underline opacity-60 italic text-center">Update Stay Info</button>
                 </section>
 
-                <!-- 100개 팁 리스트 버튼 -->
-                <button onclick="openAllTips()" class="w-full p-6 bg-amber-400 text-amber-900 rounded-[2.5rem] font-black italic flex justify-between items-center shadow-lg">
+                <button onclick="openAllTips()" class="w-full p-6 bg-amber-400 text-amber-900 rounded-[2.5rem] font-black italic flex justify-between items-center shadow-lg active:scale-95 transition-all">
                     <span>SEE ALL 100 SURVIVAL TIPS</span><i class="fa-solid fa-list-ul"></i>
                 </button>
 
                 <footer class="py-12 text-center space-y-8 border-t border-slate-100">
                     <div class="flex justify-center gap-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                        <a href="privacy.html" class="hover:text-blue-600">Privacy Policy</a>
+                        <a href="privacy.html" class="hover:text-blue-600">Privacy</a>
                         <a href="terms.html" class="hover:text-blue-600">Terms</a>
-                        <a href="support.html" class="hover:text-blue-600 transition-colors">Support</a>
+                        <a href="support.html" class="hover:text-blue-600 text-center">Support</a>
                     </div>
-                    <p class="text-[9px] text-slate-200 uppercase font-black tracking-widest">Designed for Travelers in Korea</p>
+                    <p class="text-[9px] text-slate-300 font-bold italic tracking-tighter uppercase text-center tracking-widest">Global Travel Guardian - TripAid</p>
                 </footer>
             </main>
         </div>
 
-        <!-- [RIGHT SIDEBAR: PC 전용 수익창] -->
+        <!-- [RIGHT SIDEBAR: PC] -->
         <aside class="sidebar">
             <a href="https://www.klook.com" target="_blank" class="btn-tap bg-white p-6 rounded-[2.5rem] shadow-sm border-2 border-orange-50 flex flex-col items-center text-center">
                 <span class="text-[10px] font-black text-orange-500 uppercase tracking-tighter mb-4 italic">Exclusive Deal</span>
-                <img src="https://via.placeholder.com/180x100?text=AREX+Discount" class="rounded-2xl mb-4">
-                <p class="text-xs font-black text-slate-800 leading-tight">Discounted Incheon Airport Express AREX</p>
-                <p class="text-[9px] text-slate-400 mt-2 italic font-medium">Book now and save your time!</p>
+                <p class="text-xs font-black text-slate-800 leading-tight italic">Discounted AREX Airport Express</p>
             </a>
-            
             <a href="https://linktr.ee/dedle" target="_blank" class="btn-tap bg-slate-900 p-8 rounded-[2.5rem] shadow-xl text-center text-white">
                 <i class="fa-solid fa-wifi text-emerald-400 text-3xl mb-4"></i>
-                <p class="font-black uppercase italic tracking-tighter text-sm">Need Data?</p>
-                <p class="text-[10px] opacity-70 mt-2">Unlimited 4G eSIM for your stay in Korea. No pickup required.</p>
+                <p class="font-black uppercase italic tracking-tighter text-sm italic">Need eSIM?</p>
             </a>
-
-            <div class="p-6 border-2 border-dashed border-slate-200 rounded-[2.5rem] flex items-center justify-center h-40">
-                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest italic">Ads Zone</span>
-            </div>
         </aside>
 
     </div>
 
-    <!-- 하단 내비게이션 바 -->
+    <!-- 하단 바 -->
     <nav class="bottom-nav">
-        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1"><i class="fa-solid fa-house text-blue-600 text-xl"></i><span class="text-[9px] font-bold">Home</span></button>
-        <button onclick="openCategory('speak')" class="flex flex-col items-center gap-1"><i class="fa-solid fa-comment-dots text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Speak</span></button>
-        <button onclick="openVisualGuide()" class="flex flex-col items-center gap-1"><i class="fa-solid fa-eye text-slate-400 text-xl"></i><span class="text-[9px] font-bold">Steps</span></button>
-        <button onclick="openCategory('hallyu')" class="flex flex-col items-center gap-1"><i class="fa-solid fa-heart text-pink-400 text-xl"></i><span class="text-[9px] font-bold">Hallyu</span></button>
+        <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="flex flex-col items-center gap-1 text-center"><i class="fa-solid fa-house text-blue-600 text-xl text-center"></i><span class="text-[9px] font-bold">Home</span></button>
+        <button onclick="openCategory('speak')" class="flex flex-col items-center gap-1 text-center"><i class="fa-solid fa-comment-dots text-slate-400 text-xl text-center"></i><span class="text-[9px] font-bold">Speak</span></button>
+        <button onclick="openCategory('tourism')" class="flex flex-col items-center gap-1 text-center"><i class="fa-solid fa-camera-retro text-slate-400 text-xl text-center"></i><span class="text-[9px] font-bold">Sights</span></button>
+        <button onclick="openCategory('gourmet')" class="flex flex-col items-center gap-1 text-center"><i class="fa-solid fa-utensils text-slate-400 text-xl text-center"></i><span class="text-[9px] font-bold">Eat</span></button>
     </nav>
 
     <!-- [🗺️ MAP SELECTOR MODAL] -->
     <div id="map-modal" class="fixed inset-0 bg-black/80 z-[7000] hidden flex items-end sm:items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] p-8 space-y-6 animate-slideUp">
-            <div class="flex justify-between items-center">
-                <h2 class="text-xl font-black uppercase italic text-blue-600 tracking-tighter leading-none">Map App</h2>
+        <div class="bg-white w-full max-w-lg rounded-t-[3rem] sm:rounded-[3rem] p-8 space-y-6 animate-slideUp shadow-2xl">
+            <div class="flex justify-between items-center text-center">
+                <h2 class="text-xl font-black uppercase italic text-blue-600 tracking-tighter text-center">Open Map</h2>
                 <button onclick="closeMapModal()" class="text-3xl text-slate-300">&times;</button>
             </div>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Target: <span id="map-target-name" class="text-slate-800 tracking-normal uppercase">Target</span></p>
-            <div class="space-y-3">
-                <div onclick="redirectMap('naver')" class="flex items-center p-5 border-2 border-slate-100 rounded-3xl cursor-pointer active:bg-slate-50 transition-all hover:border-green-500">
-                    <div class="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center text-white font-black mr-4 text-xl shadow-md">N</div>
-                    <div class="text-left"><p class="font-black text-sm uppercase leading-none">Naver Map</p><p class="text-[10px] text-slate-400 italic mt-1 font-medium italic leading-tight">Recommended: Best for walking directions.</p></div>
+            <p class="text-[10px] text-slate-400 font-bold uppercase text-center leading-none tracking-widest">Target: <span id="map-target-name" class="text-slate-800">Target</span></p>
+            <div class="space-y-3 text-left">
+                <div onclick="redirectMap('naver')" class="flex items-center p-5 border-2 border-slate-100 rounded-3xl cursor-pointer active:bg-slate-50 transition-all hover:border-green-500 shadow-sm">
+                    <div class="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center text-white font-black mr-4 text-xl">N</div>
+                    <div class="text-left"><p class="font-black text-sm uppercase leading-none">Naver Map</p><p class="text-[10px] text-slate-400 italic mt-1 font-medium italic leading-tight italic">Recommended for walking directions.</p></div>
                 </div>
-                <div onclick="redirectMap('kakao')" class="flex items-center p-5 border-2 border-slate-100 rounded-3xl cursor-pointer active:bg-slate-50 transition-all hover:border-yellow-400">
-                    <div class="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-black font-black mr-4 text-xl shadow-md">K</div>
-                    <div class="text-left"><p class="font-black text-sm uppercase leading-none">Kakao Map</p><p class="text-[10px] text-slate-400 italic mt-1 font-medium italic leading-tight">Accurate for subway/bus arrival times.</p></div>
+                <div onclick="redirectMap('kakao')" class="flex items-center p-5 border-2 border-slate-100 rounded-3xl cursor-pointer active:bg-slate-50 transition-all hover:border-yellow-400 shadow-sm">
+                    <div class="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center text-black font-black mr-4 text-xl">K</div>
+                    <div class="text-left"><p class="font-black text-sm uppercase leading-none">Kakao Map</p><p class="text-[10px] text-slate-400 italic mt-1 font-medium italic leading-tight italic">Best for real-time bus info.</p></div>
                 </div>
-                <div onclick="redirectMap('google')" class="flex items-center p-5 border-2 border-slate-100 rounded-3xl cursor-pointer active:bg-slate-50 transition-all hover:border-blue-500">
+                <div onclick="redirectMap('google')" class="flex items-center p-5 border-2 border-slate-100 rounded-3xl cursor-pointer active:bg-slate-50 transition-all hover:border-blue-500 shadow-sm">
                     <div class="w-12 h-12 bg-white border border-slate-100 rounded-2xl flex items-center justify-center mr-4 shadow-md"><img src="https://www.gstatic.com/images/branding/product/1x/maps_96dp.png" class="w-8 h-8"></div>
-                    <div class="text-left"><p class="font-black text-sm uppercase leading-none">Google Maps</p><p class="text-[10px] text-slate-400 italic mt-1 font-medium italic leading-tight">Interface you know. No walking nav in Korea.</p></div>
+                    <div class="text-left"><p class="font-black text-sm uppercase leading-none">Google Maps</p><p class="text-[10px] text-slate-400 italic mt-1 font-medium italic leading-tight italic">Global interface. No walking nav in KR.</p></div>
                 </div>
             </div>
         </div>
@@ -249,43 +205,45 @@
             <p id="sos-en" class="text-xl font-bold text-slate-500 mb-2 uppercase italic text-center"></p>
             <h2 id="sos-kr" class="kr text-5xl font-black leading-tight mb-12 text-yellow-400 break-keep text-center"></h2>
         </div>
-        <div class="w-full max-w-xs space-y-4">
+        <div class="w-full max-w-xs space-y-4 text-center">
             <button onclick="playTTS()" class="w-full py-6 bg-blue-600 text-white rounded-2xl font-black text-xl flex items-center justify-center gap-4 shadow-xl">
                 <i class="fa-solid fa-volume-high"></i> SPEAK OUT
             </button>
             <button onclick="copySOS()" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-xs uppercase text-center tracking-widest">Copy KR/EN Text</button>
         </div>
-        <p class="mt-12 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center italic">Show this to a Korean local person</p>
+        <p class="mt-12 text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center italic leading-relaxed">Show this to a local Korean person</p>
     </div>
 
     <!-- [OVERLAY: 가상 페이지] -->
-    <div id="overlay" class="overlay shadow-2xl">
+    <div id="overlay" class="overlay">
         <header class="p-6 bg-white sticky top-0 flex justify-between items-center border-b z-50 shadow-sm">
-            <h2 id="overlay-title" class="text-xl font-black uppercase text-blue-600 text-center flex-grow pl-10 tracking-tighter">Category</h2>
+            <h2 id="overlay-title" class="text-xl font-black uppercase text-blue-600 text-center flex-grow pl-10 tracking-tighter leading-none italic">Category</h2>
             <button onclick="closeOverlay()" class="text-4xl text-slate-300 p-2">&times;</button>
         </header>
-        <div id="overlay-search-container" class="px-6 pt-4 hidden">
-            <input type="text" id="k-search" class="search-input" placeholder="Search Movie, Drama, or Idol..." onkeyup="filterHallyu()">
+        <div id="overlay-search-container" class="px-6 pt-4 hidden text-center">
+            <input type="text" id="k-search" class="search-input shadow-inner" placeholder="Search Place, Drama, or Food..." onkeyup="filterContent()">
+            <!-- 맛집 추가 버튼 (유저 참여 시스템 예고) -->
+            <button id="add-spot-btn" onclick="openAddSpotForm()" class="hidden w-full py-3 bg-emerald-100 text-emerald-700 rounded-xl font-bold text-xs uppercase mb-4 border border-emerald-200">
+                + Add Your Own Favorite Spot
+            </button>
         </div>
         <div id="overlay-content" class="p-6 space-y-4 pb-32 text-left"></div>
     </div>
 
-    <!-- [호텔 모달] -->
-    <div id="hotel-modal" class="fixed inset-0 bg-black/70 z-[6000] hidden flex items-end sm:items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[3rem] p-8 space-y-5 animate-slideUp shadow-2xl">
-            <h2 class="text-xl font-black uppercase italic text-center tracking-tighter">Stay Info</h2>
-            <div class="space-y-2">
-                <input type="text" id="in-h-name" placeholder="Hotel Name" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-600">
-                <input type="text" id="in-h-addr" placeholder="Address (Korean)" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-600">
+    <!-- [호텔/맛집 정보 입력 모달] -->
+    <div id="hotel-modal" class="fixed inset-0 bg-black/70 z-[6000] hidden flex items-end sm:items-center justify-center p-6 text-center">
+        <div class="bg-white w-full max-w-sm rounded-[3rem] p-8 space-y-5 animate-slideUp text-center shadow-2xl">
+            <h2 id="modal-title" class="text-xl font-black uppercase italic text-center tracking-tighter text-blue-600 leading-none italic">Stay Info</h2>
+            <div id="modal-inputs" class="space-y-2 text-center">
+                <input type="text" id="in-h-name" placeholder="Hotel Name" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-600 text-center text-sm shadow-inner italic font-black">
+                <input type="text" id="in-h-addr" placeholder="Address (Korean)" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none border-2 border-transparent focus:border-blue-600 text-center text-sm shadow-inner italic font-black">
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 text-center">
                 <button onclick="closeHotelModal()" class="flex-1 py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase text-xs">Cancel</button>
-                <button onclick="saveHotel()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs shadow-lg">Save</button>
+                <button id="modal-save-btn" onclick="saveHotel()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs shadow-lg font-black">Save</button>
             </div>
         </div>
     </div>
-
-    <div id="toast">✅ Done</div>
 
     <script>
         /**
@@ -297,7 +255,7 @@
             "Tipping is not required or expected. Service is always included.",
             "Subway restrooms are free, clean, and in every station.",
             "WOWPASS kiosks allow currency exchange to a card instantly.",
-            "Say 'Annyeong-haseyo' for much friendlier service.",
+            "Say 'Annyeong-haseyo' (Hello) to get better service.",
             "The red subway seats are for elderly/pregnant only. Leave them empty.",
             "Most Korean homes and restaurants require removing shoes.",
             "T-Money cards can be recharged at any convenience store with cash.",
@@ -385,39 +343,60 @@
             "Banks are open 09:00 to 16:00, weekdays only.",
             "Korea is one of the safest countries for solo travelers.",
             "Most toilets have an 'SOS' button for real emergencies.",
-            "Korean convenience stores provide hot water for Ramen.",
+            "Check the yellow paving for sidewalk direction.",
+            "Convenience stores have hot water for Ramen.",
             "Try 'Sannakji' (Live octopus) if you feel adventurous.",
             "Check your receipt for the bathroom password.",
-            "Most buses have USB charging ports available.",
-            "Koreans rarely tip taxi drivers; keep the change.",
-            "Hike Bukhansan for the best view of Seoul city.",
-            "Use the 'Climate Card' for unlimited monthly transit.",
-            "Enjoy the night view from N-Seoul Tower.",
-            "Good luck and stay safe with TripAid!"
+            "Most buses have USB charging ports.",
+            "Bukhansan Hike is best for city views.",
+            "Use the 'Climate Card' for unlimited transit.",
+            "Stay safe and enjoy Korea with TripAid!"
         ];
 
         const CATEGORIES = {
-            hallyu: { t: "K-Wave Multi-Search", i: [
-                { n: "HYBE (BTS/NewJeans)", i: "🎤", q: "HYBE Seoul", m: "The headquarters of BTS and NewJeans. Fans visit for the iconic building design and fan-events in nearby cafes.", tags: ["하이브", "ハイ브", "bts", "bangtan", "newjeans", "hybe"] },
-                { n: "YG Entertainment (BLACKPINK)", i: "🔥", q: "YG Entertainment Mapo", m: "Home of BLACKPINK. The building in Hapjeong is famous for its futuristic architecture.", tags: ["와이지", "ワイジー", "blackpink", "yg"] },
-                { n: "SM Entertainment (Kwangya)", i: "🌟", q: "SM Entertainment Seongsu", m: "Located in Seongsu. Check the KWANGYA experience zone for futuristic media art.", tags: ["에스엠", "エスエム", "exo", "aespa", "sm", "kwangya"] },
-                { n: "JYP Entertainment (Stray Kids)", i: "🍭", q: "JYP Entertainment Gangdong", m: "Home of TWICE and Stray Kids. The building features an organic cafe for trainees and staff.", tags: ["제이와이피", "ジェーワイピー", "twice", "stray kids", "jyp"] },
-                { n: "Starship Entertainment (IVE)", i: "🚀", q: "Starship Entertainment Gangnam", m: "Home of IVE and Monsta X. Located in the heart of Gangnam.", tags: ["스타쉽", "スターシップ", "ive", "starship"] },
-                { n: "Star Empire (ZE:A)", i: "👑", q: "Star Empire Mapo", m: "Legendary agency in Mapo, home to ZE:A and 9Muses history.", tags: ["스타제국", "スター帝国", "starempire"] },
-                { n: "BH Entertainment (Actor)", i: "🎭", q: "BH Entertainment Gangnam", m: "The agency of Lee Byung-hun and Kim Go-eun. A major hub for world-class Korean actors.", tags: ["비에이치", "bh", "lee byung hun", "kim go eun"] },
-                { n: "Artist Company (Actor)", i: "🎬", q: "Artist Company Gangnam", m: "Founded by Lee Jung-jae and Jung Woo-sung. The heart of the 'Squid Game' star's management.", tags: ["아티스트컴퍼니", "artist company", "lee jung jae"] },
-                { n: "Squid Game Filming Spot", i: "🦑", q: "Ssangmun-dong Baekwoon Market", m: "Visit the real market where Gi-hun and Sang-woo lived in the show.", tags: ["오징어게임", "squid game", "イカゲーム"] },
-                { n: "Crash Landing on You", i: "🪂", q: "Lake Byeokcho Gardens", m: "Filming location for many beautiful flower garden scenes.", tags: ["사랑의불시착", "crash landing on you", "愛の不時着"] }
+            tourism: { t: "Sights & Landmarks", i: [
+                { n: "Seoul: Gyeongbokgung Palace", i: "🏛️", q: "Gyeongbokgung", m: "The main royal palace. TIP: Wear a Hanbok for free entry. Watch the changing of the guard at 10 AM.", tags: ["seoul", "palace", "서울", "경복궁"] },
+                { n: "Seoul: N Seoul Tower", i: "🗼", q: "N Seoul Tower", m: "The symbol of Seoul. Best viewed at sunset. You can hike up Namsan or take the cable car.", tags: ["seoul", "tower", "서울", "남산타워"] },
+                { n: "Seoul: Lotte World Tower", i: "🏢", q: "Lotte World Tower Seoul Sky", m: "The 6th tallest building in the world. Glass floors in the observatory are terrifying but amazing.", tags: ["seoul", "lotte", "서울", "롯데타워"] },
+                { n: "Busan: Haeundae Beach", i: "🏖️", q: "Haeundae Beach Busan", m: "The representative beach of Korea. Visit in the evening for beautiful lights and street food.", tags: ["busan", "beach", "부산", "해운대"] },
+                { n: "Busan: Gamcheon Culture Village", i: "🏘️", q: "Gamcheon Culture Village", m: "The Machu Picchu of Korea. Colorful houses on a hill. Don't miss the Little Prince photo spot.", tags: ["busan", "art", "부산", "감천문화마을"] },
+                { n: "Incheon: Songdo Central Park", i: "🌳", q: "Songdo Central Park Incheon", m: "Futuristic park in Incheon. You can ride water taxis and see deer. Very romantic at night.", tags: ["incheon", "park", "인천", "송도"] },
+                { n: "Daegu: E-World & 83 Tower", i: "🎡", q: "Daegu E-World Tower", m: "Theme park with an iconic tower. Best during cherry blossom season or for evening illumination.", tags: ["daegu", "park", "대구", "이월드"] },
+                { n: "Daejeon: Expo Park", i: "🚀", q: "Daejeon Expo Park Hanbit Tower", m: "Scientific city landmark. The fountain show and the 'Hanbit Tower' are the main attractions.", tags: ["daejeon", "expo", "대전", "엑스포"] },
+                { n: "Gwangju: 5.18 Memory Park", i: "🕯️", q: "Gwangju 518 Memorial Park", m: "The heart of Korea's democracy movement. A peaceful place to learn about modern history.", tags: ["광주", "gwangju", "history"] },
+                { n: "Ulsan: Taehwagang Bamboo Forest", i: "🎋", q: "Ulsan Taehwagang National Garden Bamboo", m: "A massive bamboo forest by the river. Called the 'Simnidae' forest. Great for nature walks.", tags: ["울산", "ulsan", "nature"] },
+                { n: "Sejong: Lake Park", i: "🛶", q: "Sejong Lake Park", m: "The largest artificial lake in Korea. Perfect for biking and family picnics.", tags: ["세종", "sejong", "lake"] },
+                { n: "Gyeonggi: Suwon Hwaseong Fortress", i: "🏯", q: "Suwon Hwaseong Fortress", m: "UNESCO site. Walk the entire fortress wall for a great workout and city views.", tags: ["gyeonggi", "fortress", "경기", "수원"] },
+                { n: "Gangwon: Nami Island", i: "🚢", q: "Nami Island Gapyeong", m: "Famous 'Winter Sonata' spot. Beautiful tree-lined paths. Requires a short ferry ride.", tags: ["gangwon", "nami", "강원", "남이섬"] },
+                { n: "Jeju: Seongsan Ilchulbong", i: "🌋", q: "Seongsan Ilchulbong", m: "Sunrise Peak on Jeju Island. A tuff cone formed by volcanic eruption. Hike to the top is 20 mins.", tags: ["jeju", "nature", "제주", "성산일출봉"] },
+                { n: "Chungbuk: Dodamsambong Rocks", i: "🏔️", q: "Dodamsambong Danyang", m: "Three stone peaks in the middle of a river. Classic beauty of Korea's inland nature.", tags: ["chungbuk", "river", "충북", "단양"] },
+                { n: "Chungnam: Anmyeondo Beach", i: "🦀", q: "Anmyeondo Beach Chungnam", m: "Famous for beautiful sunsets and delicious flower crabs. Very popular camping spot.", tags: ["충남", "chungnam", "sunset"] },
+                { n: "Jeonbuk: Jeonju Hanok Village", i: "🏮", q: "Jeonju Hanok Village", m: "Best place for Hanbok and Bibimbap. Over 800 traditional houses. Very tourist friendly.", tags: ["jeonbuk", "전북", "전주"] },
+                { n: "Jeonnam: Suncheonman Bay", i: "🌾", q: "Suncheonman National Garden", m: "Largest reed field in Korea. UNESCO biosphere reserve. Perfect for sunset photography.", tags: ["jeonnam", "전남", "순천"] },
+                { n: "Gyeongbuk: Bulguksa Temple", i: "🛕", q: "Bulguksa Temple Gyeongju", m: "The representative temple of Silla Kingdom. Incredible stonework and historic atmosphere.", tags: ["gyeongbuk", "경북", "경주", "temple"] },
+                { n: "Gyeongnam: Windmill Hill (Geoje)", i: "🎡", q: "Windy Hill Geoje", m: "A hill with a large windmill overlooking the ocean. Very famous filming spot for dramas.", tags: ["gyeongnam", "경남", "거제"] }
+            ]},
+            gourmet: { t: "K-Gourmet Search", i: [
+                { n: "Bibimbap: Jeonju Original", i: "🥗", q: "Jeonju Bibimbap Restaurant", m: "The birthplace of Bibimbap. Authentic versions come with many side dishes and local sprouts.", tags: ["food", "bibimbap", "비빔밥", "전주"] },
+                { n: "Pork Soup: Busan Dwaeji-gukbab", i: "🍲", q: "Busan Pork Soup Seomyeon", m: "Busan's soul food. Rich pork broth with meat slices. Season with salted shrimp provided on table.", tags: ["food", "soup", "돼지국밥", "부산"] },
+                { n: "K-BBQ: Premium Hanwoo", i: "🥩", q: "Majang-dong Meat Market Seoul", m: "Premium Korean beef. In Majang market, you buy the meat and take it to a 'cooking' restaurant nearby.", tags: ["bbq", "beef", "한우", "서울"] },
+                { n: "Street Food: Myeongdong Night", i: "🍢", q: "Myeongdong Street Food", m: "A massive variety of street snacks. From lobster tails to egg bread. Most stalls accept cards/bank transfer now.", tags: ["street", "snack", "길거리음식", "명동"] },
+                { n: "Chicken & Beer (Chimaek)", i: "🍗", q: "Kyochon BHC BBQ Chicken Seoul", m: "Order to Han River for the ultimate experience. Try 'Honey Combo' or 'Galbi' flavors.", tags: ["chicken", "beer", "치킨", "치맥"] }
+            ]},
+            hallyu: { t: "K-Wave & Media", i: [
+                { n: "HYBE (BTS/NewJeans)", i: "🎤", q: "HYBE Seoul", m: "BTS headquarters. Iconic building. Fan events often held in cafes across the street.", tags: ["하이브", "bts", "newjeans", "hybe", "kpop"] },
+                { n: "YG Entertainment (BLACKPINK)", i: "🔥", q: "YG Entertainment Mapo", m: "Futuristic building near Hapjeong. Visit 'the Same' fan cafe right across.", tags: ["yg", "blackpink", "와이지", "kpop"] },
+                { n: "SM Entertainment (Kwangya)", i: "🌟", q: "SM Entertainment Seongsu", m: "Located in Seongsu. KWANGYA experience zone in B1 has merchandise and media art.", tags: ["sm", "aespa", "exo", "에스엠", "kpop"] },
+                { n: "JYP Entertainment", i: "🍭", q: "JYP Entertainment Gangdong", m: "Home of Twice and Stray Kids. Building has a famous organic cafe for trainees.", tags: ["jyp", "twice", "straykids", "제이와이피", "kpop"] },
+                { n: "Drama Filming: Squid Game", i: "🦑", q: "Ssangmun-dong Baekwoon Market", m: "Visit the real neighborhood of Gi-hun. Traditional Seoul vibe preserved.", tags: ["squidgame", "오징어게임", "drama"] }
             ]},
             arrival: { t: "Arrival Support", i: [
-                { n: "AREX Fast Train", i: "🚆", q: "Incheon Airport Railroad", m: "The 'Direct Train' connects Incheon T1/T2 to Seoul Station in 45 mins. Seats are guaranteed. Best way to enter the city with heavy bags." },
-                { n: "Global ATM (Cash)", i: "🏧", q: "Global ATM", m: "Most GS25 or CU convenience store ATMs are 'Global' friendly. Look for the logo. Always use the 'DCC Off' or local currency option to save on fees." },
-                { n: "SIM Card / eSIM", i: "📱", q: "SIM Card Incheon", m: "Pickup at Incheon Airport 1F. Saily eSIM is a great digital option. Physical SIMs are better if you want a Korean phone number for delivery apps." }
+                { n: "AREX Fast Train", i: "🚆", q: "Airport Railroad Incheon", m: "Seoul Station in 45 mins. Reserved seating. Best for heavy bags." },
+                { n: "WOWPASS (Debit Card)", i: "💳", q: "WOWPASS machine", m: "Orange machine. Instant currency exchange to a card. Works as T-Money too." }
             ]},
             transport: { t: "Taxi & Transport", i: [
-                { n: "Naver Map App", i: "🧭", q: "Naver Map", m: "Essential for survival. Google Maps walk nav is disabled in Korea. Use Naver for precise exit-to-exit guidance and 1-meter accuracy." },
-                { n: "Kakao Taxi (App)", i: "🚕", q: "Kakao Taxi", m: "The standard way to call a taxi. Choose 'General Request' for normal rates. Drivers rarely stop for waves now; the app is mandatory in 2025." },
-                { n: "WOWPASS Finder", i: "💳", q: "WOWPASS machine", m: "Find the orange kiosks in subways. Exchange foreign cash to a local debit card + T-Money instantly. Highly recommended for tourists." }
+                { n: "Naver Map App", i: "🧭", q: "Naver Map", m: "Essential for walking. Google walking nav is disabled in Korea." },
+                { n: "Kakao Taxi (App)", i: "🚕", q: "Kakao Taxi", m: "Standard taxi app. Drivers rarely stop for waves now. App is mandatory." }
             ]},
             speak: { t: "Speak Cards", i: [
                 { n: "Taxi / Move", i: "🚖", s: "taxi" },
@@ -426,31 +405,21 @@
                 { n: "Food / Dining", i: "🍜", s: "dining" },
                 { n: "Life / Shopping", i: "🛍️", s: "daily" }
             ]},
-            food: { t: "Hometown Food", i: [
-                { n: "East Asian (JP/CN)", i: "🥟", q: "Japanese Chinese restaurant", m: "Hongdae has the best authentic Japanese Ramen. Chinatown in Incheon is where Korean-Chinese black bean noodles were born." },
-                { n: "Western / Burger", i: "🍔", q: "Western Burger Pizza Itaewon", m: "Itaewon or Hannam-dong has the highest density of high-quality Western food. Try 'Downowner' for burgers or 'Bonny's' for pizza." },
-                { n: "SE Asian", i: "🍜", q: "Thai Vietnamese food", m: "Vietnamese Pho is a major staple for Seoul office workers. You can find high-quality SE Asian food in areas like Gangnam or Mapo." },
-                { n: "Halal / Middle East", i: "🕌", q: "Halal restaurant Itaewon", m: "The Seoul Central Mosque is in Itaewon, surrounded by many Halal-certified restaurants. Great for authentic hummus and kebabs." }
+            emergency: { t: "Safety", i: [
+                { n: "English Hospital", i: "🏥", q: "International Hospital Seoul", m: "Major hospitals have dedicated clinics for foreign travelers with English support." },
+                { n: "24h Pharmacy", i: "💊", q: "24 hour pharmacy", m: "Look for 'Yak' (약). CU/GS25 also sell basic meds for fever/digestion." }
             ]},
-            emergency: { t: "Medical & Safety", i: [
-                { n: "English Hospital", i: "🏥", q: "International Emergency Hospital Seoul", m: "Major hospitals like Yonsei Severance or Asan Medical Center have English-speaking international clinics for foreigners." },
-                { n: "24h Pharmacy", i: "💊", q: "24 hour pharmacy", m: "Look for the red 'Yak' (약) sign. If closed, convenience stores sell basic meds: Tylenol, digestive aids, and muscle patches." },
-                { n: "Police Station", i: "👮", q: "Police Station", m: "Korean police are very helpful. If you lose an item, they will help you report it to the Lost112 portal. Most tourist areas have English support." }
-            ]},
-            essentials: { t: "Daily Utilities", i: [
-                { n: "Public Restroom", i: "🚻", q: "Public toilet", m: "Subway station toilets are free, clean, and safe. Many cafes also have toilets (check the receipt for a password)." },
-                { n: "Luggage Storage", i: "🧳", q: "Subway Locker Storage", m: "Subway stations have yellow 'T-Locker' units. Pay with card or T-money. Sizes range from small bags to large suitcases." },
-                { n: "Power Bank Rental", i: "🔋", q: "Power Bank Rental CU GS25", m: "Look for 'Wanchung-i' machines inside convenience stores to rent a battery for a few KRW. Return it to any other machine in the city." }
-            ]},
-            shopping: { t: "K-Shopping Help", i: [
-                { n: "Olive Young", i: "💄", q: "Olive Young", m: "The #1 K-beauty store. Most branches offer instant tax refunds at the checkout if you have your passport ready. Sales happen monthly." },
-                { n: "Daiso", i: "🏬", q: "Daiso", m: "Best for cheap daily essentials (adapters, tissues, umbrellas). Perfect for buying small souvenirs like stickers or magnets." },
-                { n: "Traditional Markets", i: "🥖", q: "Gwangjang Market Mangwon", m: "Experience real local street food. Gwangjang is famous for Mung bean pancakes. Cash is preferred over card at small vendor stalls." }
+            essentials: { t: "Daily Utils", i: [
+                { n: "Public Toilet", i: "🚻", q: "Public toilet", m: "Subway stations are the cleanest free toilets. Look for signs." },
+                { n: "Luggage Storage", i: "🧳", q: "Subway Locker", m: "Yellow lockers in subways. Pay with card or T-money. sizes range S to XL." }
             ]},
             culture: { t: "Culture & Manners", i: [
-                { n: "Palace Manners", i: "🏛️", q: "Gyeongbokgung Palace", m: "Entering in a Hanbok is free. Please maintain silence in memorial areas and do not sit on the ancient stone carvings to respect the history." },
-                { n: "Dining Etiquette", i: "🥢", q: "Traditional Korean Restaurant", m: "Wait for the eldest to pick up chopsticks first. Use both hands when receiving a drink or dish. Tipping is not part of the culture." },
-                { n: "Shoe Removal", i: "👟", q: "Traditional floor seating restaurant", m: "Many traditional places require removing shoes. If you see a shoe rack at the door, you must take yours off before entering." }
+                { n: "Palace Etiquette", i: "🏛️", q: "Gyeongbokgung Palace", m: "Free entry if you wear a Hanbok. Maintain silence in memorial areas." },
+                { n: "Drinking Manners", i: "🍻", q: "Korean Drinking Etiquette", m: "Receive drinks with both hands. Turning your head away shows respect." }
+            ]},
+            shopping: { t: "K-Shopping Help", i: [
+                { n: "Olive Young", i: "💄", q: "Olive Young", m: "#1 K-Beauty store. Instant tax refund at checkout with passport." },
+                { n: "Daiso", i: "🏬", q: "Daiso", m: "Best for cheap daily essentials and souvenirs for 1,000 KRW." }
             ]}
         };
 
@@ -471,7 +440,7 @@
                 { n: "Help me", a: ["Please help me!", "도와주세요!"] },
                 { n: "Call Police", a: ["Please call the police (112).", "경찰(112)을 불러주세요."] },
                 { n: "Ambulance", a: ["Please call an ambulance (119).", "구급차(119)를 불러주세요."] },
-                { n: "Lost item", a: ["I lost my wallet.", "지갑을 잃어버렸어요."] }
+                { n: "Lost my wallet", a: ["I lost my wallet.", "지갑을 잃어버렸어요."] }
             ],
             dining: [
                 { n: "No meat", a: ["No meat, please. (Vegetarian)", "고기는 빼주세요. (채식주의자입니다)"] },
@@ -489,6 +458,7 @@
 
         // --- CORE LOGIC ---
         let currentMapQuery = "";
+        let currentActiveCategory = "";
 
         const showToast = (m) => {
             const t = document.getElementById("toast");
@@ -538,7 +508,13 @@
             navigator.clipboard.writeText(t).then(() => showToast("✅ Text Copied!"));
         }
 
-        function openHotelModal() { document.getElementById('hotel-modal').classList.remove('hidden'); }
+        function openHotelModal() {
+            document.getElementById('modal-title').innerText = "Stay Info";
+            document.getElementById('in-h-name').placeholder = "Hotel Name";
+            document.getElementById('in-h-addr').placeholder = "Address (Korean)";
+            document.getElementById('modal-save-btn').onclick = saveHotel;
+            document.getElementById('hotel-modal').classList.remove('hidden'); 
+        }
         function closeHotelModal() { document.getElementById('hotel-modal').classList.add('hidden'); }
 
         function saveHotel() {
@@ -548,6 +524,18 @@
                 localStorage.setItem('TRIPAID_FINAL_STAY', JSON.stringify({n, a}));
                 loadHotel(); closeHotelModal(); showToast("✅ Hotel Saved!");
             }
+        }
+
+        // 맛집 제보 폼 (UI 구조)
+        function openAddSpotForm() {
+            document.getElementById('modal-title').innerText = "Add Favorite Gourmet";
+            document.getElementById('in-h-name').placeholder = "Restaurant Name";
+            document.getElementById('in-h-addr').placeholder = "Address or Region";
+            document.getElementById('modal-save-btn').onclick = () => {
+                showToast("✅ Thank you! Admin will verify and add it.");
+                closeHotelModal();
+            };
+            document.getElementById('hotel-modal').classList.remove('hidden');
         }
 
         function loadHotel() {
@@ -573,12 +561,20 @@
         }
 
         function openCategory(key) {
+            currentActiveCategory = key;
             const content = document.getElementById('overlay-content');
             const searchContainer = document.getElementById('overlay-search-container');
+            const addBtn = document.getElementById('add-spot-btn');
             document.getElementById('overlay-title').innerText = CATEGORIES[key].t;
             
             searchContainer.classList.add('hidden');
-            if(key === 'hallyu') searchContainer.classList.remove('hidden');
+            addBtn.classList.add('hidden');
+
+            if(['hallyu', 'tourism', 'gourmet'].includes(key)) {
+                searchContainer.classList.remove('hidden');
+                document.getElementById('k-search').value = "";
+                if(key === 'gourmet') addBtn.classList.remove('hidden');
+            }
 
             renderCategoryItems(key);
             document.getElementById('overlay').classList.add('active');
@@ -591,24 +587,28 @@
             } else {
                 let items = CATEGORIES[key].i;
                 if(filter) {
-                    items = items.filter(i => i.n.toLowerCase().includes(filter.toLowerCase()) || i.m.toLowerCase().includes(filter.toLowerCase()));
+                    items = items.filter(i => 
+                        i.n.toLowerCase().includes(filter.toLowerCase()) || 
+                        i.m.toLowerCase().includes(filter.toLowerCase()) ||
+                        (i.tags && i.tags.some(tag => tag.toLowerCase().includes(filter.toLowerCase())))
+                    );
                 }
                 content.innerHTML = items.map(item => `
                     <div class="mb-4">
-                        <div onclick="openMapPicker('${item.q}', '${item.n}')" class="p-6 bg-slate-50 rounded-t-3xl border flex justify-between items-center active:bg-slate-100 font-bold uppercase text-sm italic tracking-tighter">
+                        <div onclick="openMapPicker('${item.q}', '${item.n}')" class="p-6 bg-slate-50 rounded-t-3xl border flex justify-between items-center active:bg-slate-100 font-bold uppercase text-sm italic tracking-tighter shadow-sm">
                             <div class="flex items-center"><span class="text-3xl mr-4">${item.i}</span>${item.n}</div>
                             <i class="fa-solid fa-chevron-right text-slate-300"></i>
                         </div>
-                        <div class="manual-card"><b>Guide:</b> ${item.m}</div>
+                        <div class="manual-card font-bold italic tracking-tight"><b>Deep Guide:</b> ${item.m}</div>
                     </div>
                 `).join('');
-                if(items.length === 0) content.innerHTML = '<p class="text-center text-slate-400 py-10 font-bold uppercase italic leading-tight">No results found for your search.</p>';
+                if(items.length === 0) content.innerHTML = '<p class="text-center text-slate-400 py-10 font-bold uppercase italic leading-tight">No results found.</p>';
             }
         }
 
-        function filterHallyu() {
+        function filterContent() {
             const query = document.getElementById('k-search').value;
-            renderCategoryItems('hallyu', query);
+            renderCategoryItems(currentActiveCategory, query);
         }
 
         function openSpeakSub(sub) {
@@ -629,14 +629,7 @@
             const content = document.getElementById('overlay-content');
             document.getElementById('overlay-search-container').classList.add('hidden');
             document.getElementById('overlay-title').innerText = "Visual Guide";
-            content.innerHTML = `<div class="p-6 bg-blue-50 rounded-3xl border border-blue-100 mb-6 text-left font-bold text-blue-700 italic underline tracking-tight">📍 Real photo-guides for finding WOWPASS machines and subway exits are currently being updated by our local team!</div>`;
-            document.getElementById('overlay').classList.add('active');
-        }
-
-        function openArticle() {
-            const content = document.getElementById('overlay-content');
-            document.getElementById('overlay-title').innerText = "Survival Guide";
-            content.innerHTML = `<div class="px-2 text-left space-y-5 pb-10 leading-relaxed"><h3 class="text-2xl font-black italic tracking-tighter leading-tight">Master Korea: Maps & Safety</h3><p class="text-sm text-slate-600 font-medium italic"><b>1. Digital Rules:</b> Google Maps walking directions are disabled. Use <b>Naver Map</b> for the best accuracy.</p><p class="text-sm text-slate-600 font-medium italic"><b>2. T-Money:</b> Almost everything can be paid with a card. Tap when entering AND exiting.</p><p class="text-sm text-slate-600 font-medium italic"><b>3. Safety:</b> Extremely safe 24/7. Call 112 for police or visit the nearest 'Pachulso'.</p></div>`;
+            content.innerHTML = `<div class="p-6 bg-blue-50 rounded-3xl border border-blue-100 mb-6 text-left font-bold text-blue-700 italic underline tracking-tight">📍 Real photo-guides for finding WOWPASS machines and subway exits are currently being updated!</div>`;
             document.getElementById('overlay').classList.add('active');
         }
 
@@ -647,6 +640,7 @@
         });
 
         loadHotel();
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
     </script>
 </body>
 </html>
